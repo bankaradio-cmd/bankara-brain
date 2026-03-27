@@ -1,0 +1,207 @@
+Codex報告: バンカラブレイン — 初回構造レビュー依頼
+
+■ ステータス: 完了 ✅（構造レビュー依頼）
+■ テスト結果: テスト1件あり（test_bankara_cross_encoder_rerank.py）、現在未実行
+■ プロジェクト規模:
+  - Pythonコード: 25,033行（67ファイル）
+  - DB: bankara_brain.db（40.5 MB、17テーブル、約81,000行）
+  - CLAUDE.md: 173行（AI行動ルール）
+  - AGENTS.md: 97行（責務境界定義）
+  - data/: 横断分析3本 + 脚本フィードバック3本 + ルール1本 + キャラ辞典2本
+
+---
+
+## 1. プロジェクト概要
+
+バンカラブレイン（Bankara Brain）は、YouTubeチャンネル「バンカラジオ」（登録者124万人）の
+動画分析・脚本インテリジェンス基盤。
+
+### 目的
+- 過去60本の動画をデータ分析し、脚本制作に活かす
+- 「分析 → 脚本 → 撮影 → 編集 → 投稿 → 分析」の循環を回す
+
+### 主要な成果物
+- V5深層分析: 全60本完了（各動画のシーン別分析、コメディ構造、維持率相関）
+- 横断分析3本: ヒット法則20個、失敗パターン11個、維持率崩壊チェック17項目
+- バンカラジオのルール: 脚本の壁打ちから確定した27の実践ルール
+- キャラ別セリフ辞典 + 行動原理（計55KB）
+
+---
+
+## 2. アーキテクチャ
+
+### パッケージ構成
+```
+bankara_brain/           # コアパッケージ（データ基盤）
+├── cli.py              # CLIエントリポイント（1,540行）
+├── db.py               # DB接続・スキーマ管理
+├── models.py           # データモデル定義
+├── pipelines.py        # パイプライン制御
+├── utils.py            # ユーティリティ（520行）
+├── maintenance.py      # メンテナンス機能
+├── logging_config.py   # ログ設定
+├── analysis/           # 分析モジュール
+│   ├── scoring.py      # スコアリング（1,125行）
+│   ├── visual_audio.py # 映像・BGM分析（872行）
+│   ├── enrichment.py   # エンリッチメント（484行）
+│   ├── feedback.py     # フィードバック処理
+│   └── structured_summary.py
+├── corpus/             # コーパス管理
+│   ├── curation.py     # キュレーション（896行）
+│   ├── query.py        # クエリ
+│   └── timeline.py     # タイムライン
+├── embedding/          # 埋め込みベクトル
+│   ├── core.py         # コア処理（827行）
+│   ├── search.py       # 検索（815行）
+│   ├── ingestion.py    # 取り込み（888行）
+│   ├── benchmark.py    # ベンチマーク（578行）
+│   ├── manifest.py     # マニフェスト（674行）
+│   └── (client, config, media, rerank, store, sync, vectors)
+├── ingest/             # データ取り込み
+│   ├── pipeline.py     # パイプライン
+│   ├── stage.py        # ステージ管理
+│   └── transcript.py   # 文字起こし
+└── youtube/            # YouTube API連携
+    ├── analytics.py    # アナリティクス
+    ├── auth.py         # 認証
+    ├── comments.py     # コメント取得
+    ├── data_api.py     # Data API
+    ├── helpers.py      # ヘルパー
+    ├── linking.py      # リンキング
+    ├── public.py       # 公開API
+    └── sync.py         # 同期
+
+bankara_script_assistant/ # 脚本アシスタント（consumerパッケージ）
+├── cli.py              # CLIエントリポイント
+├── brief.py            # ブリーフ生成（470行）
+├── generation.py       # 脚本生成（716行）
+├── gemini_helpers.py   # Gemini API連携
+└── review.py           # レビュー機能
+
+scripts/                 # 運用スクリプト
+├── generate_deep_analysis_v5.py  # V5分析生成
+├── register_new_videos.py        # 新規動画登録
+├── batch_gemini_reanalysis.py    # Gemini一括再分析
+└── archive/             # 旧スクリプト群
+```
+
+### DB構造（bankara_brain.db — SQLite 40.5MB）
+| テーブル | 行数 | 用途 |
+|---------|------|------|
+| assets | 60 | 動画メタ情報 |
+| brain_deep_analysis | 120 | 深層分析テキスト（v2:4, v4:56, v5:60） |
+| youtube_daily_metrics | 42,425 | 日次再生数 |
+| youtube_retention_points | 6,000 | 維持率データ（100点/動画） |
+| youtube_comments | 31,064 | コメントデータ |
+| scene_cards | 1,210 | シーンカード |
+| characters | 7 | キャラクター情報 |
+| その他10テーブル | - | 埋め込み、タイムライン、フィードバック等 |
+
+### AI制御ファイル
+| ファイル | 行数 | 役割 |
+|---------|------|------|
+| CLAUDE.md | 173行 | V5分析の品質ルール10個、AIの行動制約 |
+| AGENTS.md | 97行 | 責務境界（Brainに含めるもの/含めないもの） |
+| data/バンカラジオのルール.md | - | 脚本の壁打ちから確定した27の実践ルール |
+| data/横断分析/ | 3本 | データ分析から導出した法則集 |
+
+---
+
+## 3. 設計上の特徴
+
+### 責務分離（AGENTS.md）
+- **Brain（コア）**: ingest, storage, models, analytics, embeddings, feedback
+- **Consumer（外部）**: 脚本生成, UI, 制作ワークフロー
+- `bankara_script_assistant/` はconsumerとして分離されている
+
+### AI制御の仕組み
+- CLAUDE.mdで「AIの暴走パターン」を経験ベースで列挙して制止
+- 例: 「勝手に次の作業に着手しない」「シーンをまとめない」「制作手法の推測禁止」
+- 脚本壁打ちのフロー: context pack読み込み → ゲート通過 → 構成案 → FBループ
+- フィードバックの昇格は人間（やねすけ）の判断制。AIが勝手に昇格しない
+
+### データの流れ
+```
+YouTube API → bankara_brain.db → V5深層分析 → 横断分析
+                                      ↓
+                              脚本壁打ちで活用
+                                      ↓
+                              公開後フィードバック（未実装）
+```
+
+---
+
+## 4. レビューで見てほしいポイント
+
+### P1: アーキテクチャの健全性
+- `bankara_brain/` と `bankara_script_assistant/` の分離は適切か
+- パッケージ構造は保守可能か（特にembedding/が10ファイルと肥大気味）
+- `cli.py` が1,540行あるが、分割すべきか
+
+### P2: DB設計
+- `brain_deep_analysis` にv2/v4/v5の3バージョンが混在（v2:4件は旧データ）
+- `scene_cards` 1,210件と `brain_deep_analysis` 120件の関係性は適切か
+- `claim_cards` が0件（未使用テーブル）
+- `text_segments`, `embedding_records` が少数（152件, 187件）— 十分に活用されているか
+
+### P3: コード品質
+- テストが1ファイルしかない（`test_bankara_cross_encoder_rerank.py`）
+- `scripts/` にワンショットスクリプトが蓄積（archive/に7本、現役に6本）
+- `archive/` フォルダに旧コード・旧プロジェクト（instagram自動化、ui_mock）が残存
+
+### P4: 運用上の懸念
+- `downloads/` が5.2GB（.gitignoreされているか要確認）
+- `transcripts/bankara_brain.db` に0バイトのDBが存在（ゴミファイル）
+- `.venv/` が218MB（gitignore確認）
+- `reports/` に古いJSONLレポートが蓄積
+
+---
+
+## 5. 削除候補（未使用と判断されるもの）
+
+| 対象 | サイズ | 理由 |
+|------|-------|------|
+| `transcripts/bankara_brain.db` | 0 bytes | 空ファイル。本体DBと重複名 |
+| `reports/*.jsonl` | 280KB | 古いバッチレポート。分析には不要 |
+| `agent_coordination/` | 12KB | 旧エージェント連携用。現在未使用 |
+| `archive/instagram 自動化/` | - | バンカラブレインの責務外 |
+| `archive/ui_mock/` | - | バンカラブレインの責務外 |
+| `brain_deep_analysis` v2レコード | 4件 | v5で完全に置換済み |
+
+---
+
+## 6. 今後の方向性
+
+- **ショーツ版バンカラブレイン**: 横動画とは別のDBでショート動画を分析
+- **公開後フィードバックループ**: 脚本の仮説を公開後の実データで検証する循環
+- **V5教訓の体系的検証**: 約900個の「教訓（仮説）」を横断分析で確定していく
+- **キャラクターDBの充実**: characters テーブル（現在7件）を拡充
+
+---
+
+## 7. ファイル構造（全体）
+```
+バンカラブレイン/
+├── CLAUDE.md                    # AI行動ルール（173行）
+├── AGENTS.md                    # 責務境界（97行）
+├── bankara_brain.db             # メインDB（40.5MB）
+├── bankara_brain/               # コアパッケージ（38ファイル, ~18,000行）
+│   ├── analysis/                # 分析（5ファイル）
+│   ├── corpus/                  # コーパス（3ファイル）
+│   ├── embedding/               # 埋め込み（12ファイル）
+│   ├── ingest/                  # 取り込み（3ファイル）
+│   └── youtube/                 # YouTube連携（8ファイル）
+├── bankara_script_assistant/    # 脚本アシスタント（5ファイル, ~1,500行）
+├── data/                        # 分析結果・ルール
+│   ├── バンカラジオのルール.md    # 確定ルール27個
+│   ├── キャラ別セリフ辞典.md      # 10KB
+│   ├── キャラ別行動原理.md        # 45KB
+│   ├── 横断分析/                 # 法則3本（79KB）
+│   └── 脚本フィードバック/        # 稼働3本 + archive13本
+├── scripts/                     # 運用スクリプト（6本 + archive7本）
+├── tests/                       # テスト（1本）
+├── archive/                     # 旧コード
+├── downloads/                   # ダウンロード済み素材（5.2GB）
+├── transcripts/                 # 文字起こしSRT（52本）
+└── reports/                     # 旧バッチレポート
+```
