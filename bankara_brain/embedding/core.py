@@ -55,7 +55,7 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-from bankara_media_utils import shorten_text
+from bankara_brain.utils import shorten_text
 
 # ── Re-exports from submodules ──────────────────────────────────────────────
 from bankara_brain.embedding.config import (  # noqa: F401

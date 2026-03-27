@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 from google import genai
 from google.genai import types
 
-from bankara_media_utils import (
+from bankara_brain.utils import (
     build_manifest_record_id,
     build_text_chunks,
     find_sidecar_text_file,

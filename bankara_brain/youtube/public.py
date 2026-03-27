@@ -123,7 +123,7 @@ def filter_public_youtube_catalog(
 
 
 def write_download_sidecar(media_path: Path, info_payload: dict[str, Any], channel_label: str | None) -> Path:
-    from bankara_media_utils import humanize_stem
+    from bankara_brain.utils import humanize_stem
 
     upload_date = info_payload.get("upload_date")
     published_at = None
@@ -201,7 +201,7 @@ def download_public_youtube_videos(
     report_output: Path | None = None,
 ) -> None:
     from bankara_brain.corpus.curation import DEFAULT_BANKARA_CHANNEL
-    from bankara_media_utils import find_sidecar_text_file
+    from bankara_brain.utils import find_sidecar_text_file
     from bankara_brain.utils import safe_json_load
 
     output_dir.mkdir(parents=True, exist_ok=True)

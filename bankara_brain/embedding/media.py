@@ -12,7 +12,7 @@ from typing import Any
 
 from google import genai
 
-from bankara_media_utils import SUPPORTED_SUFFIXES, infer_media_type_and_mime
+from bankara_brain.utils import SUPPORTED_SUFFIXES, infer_media_type_and_mime
 
 from bankara_brain.embedding.config import (
     PreparedMedia,

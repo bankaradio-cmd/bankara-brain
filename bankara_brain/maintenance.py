@@ -68,7 +68,7 @@ def repair_assets(
     dry_run: bool,
     report_output: Path | None,
 ) -> None:
-    from bankara_media_utils import probe_media_duration
+    from bankara_brain.utils import probe_media_duration
 
     with session_factory() as session:
         if asset_selector:
@@ -250,7 +250,7 @@ def repair_assets(
 
 def doctor(config: AppConfig, json_output: Path | None = None) -> None:
     from bankara_brain.youtube.data_api import check_expected_youtube_channel
-    from bankara_media_utils import probe_media_duration  # noqa: F401 — kept for completeness
+    from bankara_brain.utils import probe_media_duration  # noqa: F401 — kept for completeness
 
     load_dotenv(override=False)
     checks: list[dict[str, Any]] = []

@@ -15,7 +15,7 @@ from bankara_brain.corpus.query import resolve_asset, select_assets_for_filters
 from bankara_brain.ingest.transcript import load_transcript_segments
 from bankara_brain.utils import format_seconds_hms, parse_float, safe_json_load, shorten_text
 from bankara_brain.youtube.helpers import first_present
-from bankara_media_utils import build_text_chunks
+from bankara_brain.utils import build_text_chunks
 
 
 # ---------------------------------------------------------------------------

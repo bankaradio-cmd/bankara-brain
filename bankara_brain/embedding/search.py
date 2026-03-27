@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 from google import genai
 from google.genai import types
-from bankara_cross_encoder_rerank import rerank_matches_with_client
+from bankara_brain.embedding.rerank import rerank_matches_with_client
 
 from bankara_brain.embedding.config import (
     EMBEDDING_MODEL,
