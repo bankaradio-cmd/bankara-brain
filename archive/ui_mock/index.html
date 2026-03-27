@@ -1,0 +1,1667 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bankara Brain Console Mock</title>
+  <style>
+    :root {
+      --bg: #f2eee7;
+      --paper: rgba(255, 250, 242, 0.9);
+      --paper-strong: #fffaf2;
+      --line: rgba(45, 31, 19, 0.12);
+      --text: #1f1712;
+      --muted: #625348;
+      --accent: #d04918;
+      --accent-soft: rgba(208, 73, 24, 0.1);
+      --forest: #0e5b4b;
+      --forest-soft: rgba(14, 91, 75, 0.1);
+      --gold: #ae7a12;
+      --gold-soft: rgba(174, 122, 18, 0.12);
+      --shadow: 0 18px 60px rgba(43, 26, 17, 0.12);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --mono: "SFMono-Regular", "Menlo", "Monaco", monospace;
+      --sans: "Avenir Next", "Hiragino Sans", "Yu Gothic", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(208, 73, 24, 0.16), transparent 26%),
+        radial-gradient(circle at top right, rgba(14, 91, 75, 0.14), transparent 24%),
+        linear-gradient(180deg, #f6f1e9 0%, var(--bg) 100%);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.5;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 26px 20px;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 250, 242, 0.76);
+      backdrop-filter: blur(16px);
+    }
+
+    .brand {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background:
+        linear-gradient(150deg, rgba(255, 255, 255, 0.9), rgba(255, 241, 230, 0.92));
+      box-shadow: var(--shadow);
+    }
+
+    .brand-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: #1e1814;
+      color: #fff6eb;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .brand h1 {
+      margin: 16px 0 8px;
+      font-size: 30px;
+      line-height: 1;
+    }
+
+    .brand p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .sidebar section {
+      margin-top: 22px;
+    }
+
+    .sidebar h2 {
+      margin: 0 0 10px;
+      padding-left: 4px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .nav {
+      display: grid;
+      gap: 8px;
+    }
+
+    .nav a,
+    .nav button {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid transparent;
+      border-radius: 14px;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+    }
+
+    .nav a:hover,
+    .nav button:hover,
+    .nav button.is-active {
+      transform: translateX(3px);
+      background: var(--accent-soft);
+      border-color: rgba(208, 73, 24, 0.22);
+      color: var(--text);
+    }
+
+    .nav small {
+      color: var(--muted);
+      font-size: 11px;
+      font-family: var(--mono);
+    }
+
+    .side-card {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.54);
+    }
+
+    .side-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .side-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .main {
+      padding: 26px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 32px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background:
+        radial-gradient(circle at top right, rgba(208, 73, 24, 0.22), transparent 26%),
+        radial-gradient(circle at bottom left, rgba(14, 91, 75, 0.15), transparent 24%),
+        linear-gradient(135deg, rgba(255, 252, 247, 0.95), rgba(255, 241, 230, 0.92));
+      box-shadow: var(--shadow);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: -80px;
+      right: -40px;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.22);
+      filter: blur(8px);
+    }
+
+    .hero-top {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      z-index: 1;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(31, 23, 18, 0.08);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hero h2 {
+      margin: 14px 0 10px;
+      max-width: 760px;
+      font-size: clamp(34px, 5vw, 66px);
+      line-height: 0.96;
+    }
+
+    .hero p {
+      max-width: 820px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .hero-actions {
+      display: grid;
+      gap: 10px;
+      min-width: 260px;
+    }
+
+    .hero-actions .button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid transparent;
+      font-weight: 700;
+    }
+
+    .button.primary {
+      background: #1f1712;
+      color: #fff8f0;
+      box-shadow: 0 10px 24px rgba(31, 23, 18, 0.18);
+    }
+
+    .button.secondary {
+      background: rgba(255, 255, 255, 0.66);
+      border-color: var(--line);
+      color: var(--text);
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .kpi {
+      position: relative;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    .kpi span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .kpi strong {
+      display: block;
+      margin: 10px 0 6px;
+      font-size: 36px;
+      line-height: 1;
+    }
+
+    .kpi em {
+      color: var(--muted);
+      font-size: 13px;
+      font-style: normal;
+    }
+
+    .section {
+      margin-top: 24px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 14px;
+    }
+
+    .section-header h3 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .section-header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .panel-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+    }
+
+    .panel,
+    .stack-panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .panel {
+      padding: 22px;
+    }
+
+    .stack-panel {
+      overflow: hidden;
+    }
+
+    .stack-panel > div {
+      padding: 22px;
+    }
+
+    .stack-panel > div + div {
+      border-top: 1px solid var(--line);
+    }
+
+    .panel-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .panel-top h4 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .panel-top p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.7);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+    }
+
+    .chip:hover,
+    .chip.is-active {
+      background: var(--accent-soft);
+      border-color: rgba(208, 73, 24, 0.24);
+      transform: translateY(-1px);
+    }
+
+    .query-box {
+      margin-top: 18px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.66);
+    }
+
+    .query-box label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .query-box textarea {
+      width: 100%;
+      min-height: 128px;
+      padding: 0;
+      border: 0;
+      outline: 0;
+      resize: vertical;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 22px;
+      line-height: 1.35;
+    }
+
+    .query-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .video-shelf,
+    .match-list,
+    .draft-list,
+    .ops-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .video-shelf {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 18px;
+    }
+
+    .video-card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--paper-strong);
+      box-shadow: var(--shadow);
+    }
+
+    .video-card video {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #130f0d;
+    }
+
+    .video-body {
+      padding: 14px;
+    }
+
+    .video-body h5 {
+      margin: 0 0 8px;
+      font-size: 17px;
+      line-height: 1.2;
+    }
+
+    .video-body p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .video-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .mini-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.78);
+      color: var(--text);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+
+    .mini-button:hover {
+      transform: translateY(-1px);
+      border-color: rgba(208, 73, 24, 0.28);
+      background: var(--accent-soft);
+    }
+
+    .mini-button.is-active {
+      border-color: rgba(208, 73, 24, 0.28);
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .match-card,
+    .draft-card,
+    .ops-card {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--paper-strong);
+    }
+
+    .match-card h5,
+    .draft-card h5,
+    .ops-card h5 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .match-meta,
+    .draft-meta,
+    .ops-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .tag.semantic { background: var(--accent-soft); color: var(--accent); }
+    .tag.feedback { background: var(--forest-soft); color: var(--forest); }
+    .tag.system { background: rgba(31, 23, 18, 0.08); color: var(--text); }
+    .tag.warning { background: var(--gold-soft); color: var(--gold); }
+
+    .match-card p,
+    .draft-card p,
+    .ops-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .timeline-radar {
+      display: grid;
+      gap: 12px;
+    }
+
+    .timeline-row {
+      display: grid;
+      grid-template-columns: 110px minmax(0, 1fr) 80px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .timeline-label {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .timeline-bar {
+      height: 20px;
+      border-radius: 999px;
+      background: rgba(31, 23, 18, 0.08);
+      overflow: hidden;
+    }
+
+    .timeline-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #ea6d38 0%, #d04918 58%, #8f2e09 100%);
+    }
+
+    .timeline-row strong {
+      font-size: 14px;
+      text-align: right;
+    }
+
+    .jump-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .jump-button {
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.78);
+      color: var(--text);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      text-align: left;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+
+    .jump-button:hover {
+      transform: translateY(-1px);
+      border-color: rgba(14, 91, 75, 0.24);
+      background: var(--forest-soft);
+    }
+
+    .jump-button span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .cohort-heat {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .cohort-card {
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,247,239,0.88));
+    }
+
+    .cohort-card strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+
+    .cohort-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .episode-strip {
+      display: grid;
+      gap: 12px;
+    }
+
+    .episode-line {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 120px 120px;
+      gap: 12px;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .episode-line:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .episode-line strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 16px;
+    }
+
+    .episode-line span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .metric-block {
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.72);
+      text-align: right;
+    }
+
+    .metric-block strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .metric-block small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .lens-summary {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    [data-cohort-panel] {
+      display: none;
+    }
+
+    [data-cohort-panel].is-active {
+      display: block;
+    }
+
+    @media (max-width: 1180px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: relative;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .kpi-grid,
+      .cohort-heat {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .panel-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .main {
+        padding: 16px;
+      }
+
+      .hero {
+        padding: 22px;
+      }
+
+      .hero-top,
+      .section-header {
+        flex-direction: column;
+      }
+
+      .hero-actions {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .kpi-grid,
+      .cohort-heat {
+        grid-template-columns: 1fr;
+      }
+
+      .video-shelf,
+      .timeline-row,
+      .episode-line {
+        grid-template-columns: 1fr;
+      }
+
+      .metric-block {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">Bankara Brain</div>
+        <h1>Console</h1>
+        <p>動画の空気感、勝ちパターン、PDCA を同じ面で扱うための運用 UI モック。</p>
+      </div>
+
+      <section>
+        <h2>Views</h2>
+        <nav class="nav">
+          <a href="#query-studio">Query Studio <small>01</small></a>
+          <a href="#pattern-radar">Pattern Radar <small>02</small></a>
+          <a href="#episode-lens">Episode Lens <small>03</small></a>
+          <a href="#draft-lab">Draft Lab <small>04</small></a>
+          <a href="#ops-feed">Ops Feed <small>05</small></a>
+        </nav>
+      </section>
+
+      <section>
+        <h2>Cohorts</h2>
+        <div class="nav">
+          <button class="is-active" type="button" data-cohort-target="mother">mother-profession <small>5</small></button>
+          <button type="button" data-cohort-target="genius">genius-kid-shop <small>7</small></button>
+          <button type="button" data-cohort-target="school">school-event <small>6</small></button>
+        </div>
+      </section>
+
+      <section>
+        <div class="side-card">
+          <strong>Current Corpus</strong>
+          <p>latest 50 本だけを active にし、実写ノイズや sample asset は外した前提。</p>
+        </div>
+      </section>
+
+      <section>
+        <div class="side-card">
+          <strong>Design Direction</strong>
+          <p>検索 UI ではなく、企画会議室と運用室が一体化した面。コホート別の勝ち筋が最初から目に入る構成。</p>
+        </div>
+      </section>
+    </aside>
+
+    <main class="main">
+      <section class="hero">
+        <div class="hero-top">
+          <div>
+            <div class="eyebrow">Active Brain / Live Feedback Synced</div>
+            <h2>コーパスの健康状態と<br>企画の打ち返しを<br>同じ画面で回す。</h2>
+            <p>
+              今の backend で取れている 50 本のコメディ corpus、timeline feedback、cohort retrieval、
+              draft 生成をそのまま UI に落とした叩き台です。最初に見るべきは「何が近いか」ではなく
+              「今どの勝ち筋が強いか」です。
+            </p>
+          </div>
+          <div class="hero-actions">
+            <a class="button primary" href="#query-studio">企画を投げて近い回を見る</a>
+            <a class="button secondary" href="#ops-feed">運用の詰まりを見る</a>
+          </div>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi">
+            <span>Active Corpus</span>
+            <strong>50</strong>
+            <em>included videos only</em>
+          </div>
+          <div class="kpi">
+            <span>Total Views</span>
+            <strong>712,822</strong>
+            <em>2026-03-01 .. 2026-03-12</em>
+          </div>
+          <div class="kpi">
+            <span>Embedded Records</span>
+            <strong>186</strong>
+            <em>asset + timeline segments</em>
+          </div>
+          <div class="kpi">
+            <span>Feedback Health</span>
+            <strong>50/50</strong>
+            <em>daily, retention, asset, timeline all green</em>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="query-studio">
+        <div class="section-header">
+          <div>
+            <h3>Query Studio</h3>
+            <p>企画の一文から、cohort と feedback を織り込んだ retrieval を即返すメイン面。</p>
+          </div>
+        </div>
+
+        <div class="panel-grid">
+          <div class="panel">
+            <div class="panel-top">
+              <div>
+                <h4>企画の起点</h4>
+                <p>cohort を先に切ってから、timeline ベースで似た回を引く。</p>
+              </div>
+            </div>
+
+            <div class="chip-row">
+              <button class="chip is-active" type="button" data-cohort-target="mother">mother-profession</button>
+              <button class="chip" type="button" data-cohort-target="genius">genius-kid-shop</button>
+              <button class="chip" type="button" data-cohort-target="school">school-event</button>
+            </div>
+
+            <div class="query-box">
+              <label>Current Prompt</label>
+              <textarea spellcheck="false">母親が職業に就いて暴走するハイテンポなコメディ</textarea>
+              <div class="query-meta">
+                <span>embedding_kind: timeline_segment</span>
+                <span>candidate_k: 15</span>
+                <span>rerank_feedback: on</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="stack-panel">
+            <div>
+              <div class="panel-top">
+                <div>
+                  <h4>Brain Health</h4>
+                  <p>いま retrieval に使っている corpus の健全性。</p>
+                </div>
+              </div>
+              <div class="chip-row">
+                <span class="chip is-active">50 assets live</span>
+                <span class="chip is-active">136 timeline scored</span>
+                <span class="chip is-active">retention synced</span>
+              </div>
+              <p class="footer-note">旧 OAuth の誤接続を外し、正チャンネルの Analytics と Pinecone metadata を再同期済み。</p>
+            </div>
+            <div>
+              <div class="panel-top">
+                <div>
+                  <h4>Winning Cohorts</h4>
+                  <p>勝ちパターンの塊を先に選び、ノイズを減らす。</p>
+                </div>
+              </div>
+              <div class="cohort-heat">
+                <div class="cohort-card">
+                  <strong>mother-profession</strong>
+                  <span>5 assets</span>
+                  <span>消防士 / 警察官 / 教師 / 総理 / 医者</span>
+                </div>
+                <div class="cohort-card">
+                  <strong>genius-kid-shop</strong>
+                  <span>7 assets</span>
+                  <span>コンビニ / ラーメン / 寿司 / 焼肉</span>
+                </div>
+                <div class="cohort-card">
+                  <strong>school-event</strong>
+                  <span>6 assets</span>
+                  <span>運動会 / 遠足 / マラソン / 調理実習</span>
+                </div>
+                <div class="cohort-card">
+                  <strong>ensemble-parody</strong>
+                  <span>4 assets</span>
+                  <span>コナン / トトロ / 鬼滅 / スマブラ</span>
+                </div>
+                <div class="cohort-card">
+                  <strong>game-world</strong>
+                  <span>5 assets</span>
+                  <span>Roblox / 逃走中 / 8番出口</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="pattern-radar">
+        <div class="section-header">
+          <div>
+            <h3>Pattern Radar</h3>
+            <p>検索ヒットそのものより、どの時間帯・どの役回りが効いたかを先に見せる面。</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-top">
+            <div>
+              <h4>Video Shelf</h4>
+              <p>説明だけではなく、cohort ごとの実動画をその場で開いて確認する棚。</p>
+            </div>
+          </div>
+
+          <div class="video-shelf" data-cohort-panel="mother">
+            <article class="video-card">
+              <video controls muted preload="metadata" playsinline src="../downloads/public_youtube/20250301_VRpfa-GJh9A_もしも最恐の母が教師になったら.mp4"></video>
+              <div class="video-body">
+                <h5>もしも最恐の母が教師になったら</h5>
+                <p>hook が最上位。学校の秩序を母が最短で破壊する基準回。</p>
+                <div class="video-actions">
+                  <button class="mini-button" type="button" data-episode-target="mother-teacher">Inspect in Lens</button>
+                </div>
+              </div>
+            </article>
+            <article class="video-card">
+              <video controls muted preload="metadata" playsinline src="../downloads/public_youtube/20230819_t6HMD8ILSCc_もしも最恐の母が警察官になったら｜アイルトンモカコラボ.mp4"></video>
+              <div class="video-body">
+                <h5>もしも最恐の母が警察官になったら</h5>
+                <p>自己紹介から事件化までが速い。導入テンポの比較用。</p>
+                <div class="video-actions">
+                  <button class="mini-button" type="button" data-episode-target="mother-police">Inspect in Lens</button>
+                </div>
+              </div>
+            </article>
+            <article class="video-card">
+              <video controls muted preload="metadata" playsinline src="../downloads/public_youtube/20240726_wunP_ldoO2M_もしも最恐の母が総理大臣になったら.mp4"></video>
+              <div class="video-body">
+                <h5>もしも最恐の母が総理大臣になったら</h5>
+                <p>権限を握ったあとの beat が強い。スケール拡張の比較用。</p>
+                <div class="video-actions">
+                  <button class="mini-button" type="button" data-episode-target="mother-prime-minister">Inspect in Lens</button>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div class="video-shelf" data-cohort-panel="genius">
+            <article class="video-card">
+              <video controls muted preload="metadata" playsinline src="../downloads/public_youtube/20260131_711drNaskpQ_もしも天才小学生がコンビニを開いたら.mp4"></video>
+              <div class="video-body">
+                <h5>もしも天才小学生がコンビニを開いたら</h5>
+                <p>shop cohort の代表回。仕切り始めるまでが速い。</p>
+                <div class="video-actions">
+                  <button class="mini-button" type="button" data-episode-target="genius-convenience">Inspect in Lens</button>
+                </div>
+              </div>
+            </article>
+            <article class="video-card">
+              <video controls muted preload="metadata" playsinline src="../downloads/public_youtube/20251219_n3pd5-oK3uc_もしも天才小学生がラーメン屋を開いたら ｜ アイルトンモカコラボ.mp4"></video>
+              <div class="video-body">
+                <h5>もしも天才小学生がラーメン屋を開いたら</h5>
+                <p>コラボでもテンポが落ちない。厨房空間の参考回。</p>
+                <div class="video-actions">
+                  <button class="mini-button" type="button" data-episode-target="genius-ramen">Inspect in Lens</button>
+                </div>
+              </div>
+            </article>
+            <article class="video-card">
+              <video controls muted preload="metadata" playsinline src="../downloads/public_youtube/20240615_Kqb540Pikrc_もしも天才小学生がハンバーガー屋を開いたら.mp4"></video>
+              <div class="video-body">
+                <h5>もしも天才小学生がハンバーガー屋を開いたら</h5>
+                <p>商品見せより会話密度で押す型。店ものの比較用。</p>
+                <div class="video-actions">
+                  <button class="mini-button" type="button" data-episode-target="genius-burger">Inspect in Lens</button>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div class="video-shelf" data-cohort-panel="school">
+            <article class="video-card">
+              <video controls muted preload="metadata" playsinline src="../downloads/public_youtube/20250728_zldukTlXmkU_天才小学生のヤバすぎる運動会.mp4"></video>
+              <div class="video-body">
+                <h5>天才小学生のヤバすぎる運動会</h5>
+                <p>学校イベントを生存競争に変える代表回。</p>
+                <div class="video-actions">
+                  <button class="mini-button" type="button" data-episode-target="school-sports-day">Inspect in Lens</button>
+                </div>
+              </div>
+            </article>
+            <article class="video-card">
+              <video controls muted preload="metadata" playsinline src="../downloads/public_youtube/20230217_2HQifx-HbK0_天才小学生のヤバすぎる調理実習.mp4"></video>
+              <div class="video-body">
+                <h5>天才小学生のヤバすぎる調理実習</h5>
+                <p>授業を事故寸前のドタバタに崩す型の基準回。</p>
+                <div class="video-actions">
+                  <button class="mini-button" type="button" data-episode-target="school-cooking">Inspect in Lens</button>
+                </div>
+              </div>
+            </article>
+            <article class="video-card">
+              <video controls muted preload="metadata" playsinline src="../downloads/public_youtube/20230303_f66gIxKdhPo_天才小学生のヤバすぎるマラソン大会.mp4"></video>
+              <div class="video-body">
+                <h5>天才小学生のヤバすぎるマラソン大会</h5>
+                <p>行事そのものより競争圧と妨害のテンポで見せる回。</p>
+                <div class="video-actions">
+                  <button class="mini-button" type="button" data-episode-target="school-marathon">Inspect in Lens</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="panel-grid">
+          <div class="panel">
+            <div class="panel-top">
+              <div>
+                <h4>Feedback-Aware Matches</h4>
+                <p>mother-profession の live rerank 結果。</p>
+              </div>
+            </div>
+
+            <div class="match-list" data-cohort-panel="mother">
+              <article class="match-card">
+                <h5>もしも最恐の母が教師になったら</h5>
+                <div class="match-meta">
+                  <span class="tag semantic">semantic 0.557</span>
+                  <span class="tag feedback">feedback 0.454</span>
+                  <span class="tag system">combined 0.625</span>
+                </div>
+                <p>hook / 00:07.590 - 03:53.750。最初の遅刻導入から母が世界を書き換える流れが強い。</p>
+              </article>
+              <article class="match-card">
+                <h5>もしも最恐の母が警察官になったら</h5>
+                <div class="match-meta">
+                  <span class="tag semantic">semantic 0.561</span>
+                  <span class="tag feedback">feedback 0.341</span>
+                  <span class="tag system">combined 0.612</span>
+                </div>
+                <p>hook / 00:03.350 - 05:20.800。自己紹介の直後に「ちょっくら奪ってきます」で強引に事件へ入る。</p>
+              </article>
+              <article class="match-card">
+                <h5>もしも最恐の母が総理大臣になったら</h5>
+                <div class="match-meta">
+                  <span class="tag semantic">semantic 0.561</span>
+                  <span class="tag feedback">feedback 0.332</span>
+                  <span class="tag system">combined 0.611</span>
+                </div>
+                <p>beat / 04:13.360 - 08:58.430。権限を持った瞬間に法律を私物化する加速感が強い。</p>
+              </article>
+            </div>
+
+            <div class="match-list" data-cohort-panel="genius">
+              <article class="match-card">
+                <h5>もしも天才小学生がコンビニを開いたら</h5>
+                <div class="match-meta">
+                  <span class="tag semantic">semantic 0.593</span>
+                  <span class="tag feedback">feedback 0.298</span>
+                  <span class="tag system">combined 0.640</span>
+                </div>
+                <p>店を仕切り始めるまでが速く、商品説明より支配の面白さが先に来る。</p>
+              </article>
+              <article class="match-card">
+                <h5>もしも天才小学生がラーメン屋を開いたら</h5>
+                <div class="match-meta">
+                  <span class="tag semantic">semantic 0.571</span>
+                  <span class="tag feedback">feedback 0.306</span>
+                  <span class="tag system">combined 0.617</span>
+                </div>
+                <p>コラボ回でもテンポが崩れず、厨房を舞台にしても会話の密度で押している。</p>
+              </article>
+            </div>
+
+            <div class="match-list" data-cohort-panel="school">
+              <article class="match-card">
+                <h5>天才小学生のヤバすぎる運動会</h5>
+                <div class="match-meta">
+                  <span class="tag semantic">semantic 0.551</span>
+                  <span class="tag feedback">feedback 0.319</span>
+                  <span class="tag system">combined 0.599</span>
+                </div>
+                <p>学校イベントを単なる行事ではなく、生存競争として描いてテンションを上げる。</p>
+              </article>
+              <article class="match-card">
+                <h5>天才小学生のヤバすぎる調理実習</h5>
+                <div class="match-meta">
+                  <span class="tag semantic">semantic 0.533</span>
+                  <span class="tag feedback">feedback 0.322</span>
+                  <span class="tag system">combined 0.582</span>
+                </div>
+                <p>平和な授業を即崩す。事故一歩手前のドタバタを短いカットで押し切る。</p>
+              </article>
+            </div>
+          </div>
+
+          <div class="stack-panel">
+            <div>
+              <div class="panel-top">
+                <div>
+                  <h4>Timeline Radar</h4>
+                  <p>どの尺の役割が強いかを秒数ではなくスコアで出す。</p>
+                </div>
+              </div>
+              <div class="timeline-radar">
+                <div class="timeline-row">
+                  <span class="timeline-label">hook</span>
+                  <div class="timeline-bar"><div class="timeline-fill" style="width: 91%"></div></div>
+                  <strong>0.454</strong>
+                </div>
+                <div class="timeline-row">
+                  <span class="timeline-label">hook</span>
+                  <div class="timeline-bar"><div class="timeline-fill" style="width: 83%"></div></div>
+                  <strong>0.415</strong>
+                </div>
+                <div class="timeline-row">
+                  <span class="timeline-label">beat</span>
+                  <div class="timeline-bar"><div class="timeline-fill" style="width: 76%"></div></div>
+                  <strong>0.379</strong>
+                </div>
+                <div class="timeline-row">
+                  <span class="timeline-label">hook</span>
+                  <div class="timeline-bar"><div class="timeline-fill" style="width: 68%"></div></div>
+                  <strong>0.341</strong>
+                </div>
+                <div class="timeline-row">
+                  <span class="timeline-label">beat</span>
+                  <div class="timeline-bar"><div class="timeline-fill" style="width: 66%"></div></div>
+                  <strong>0.332</strong>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="panel-top">
+                <div>
+                  <h4>Asset Lens</h4>
+                  <p>母職業 cohort の勝ち筋を asset 単位で再確認。</p>
+                </div>
+              </div>
+              <div class="episode-strip">
+                <div class="episode-line">
+                  <div>
+                    <strong>もしも最恐の母が教師になったら</strong>
+                    <span>hook が強い。導入直後から「学校という秩序」を母が上書きする。</span>
+                  </div>
+                  <div class="metric-block">
+                    <strong>0.350</strong>
+                    <small>asset feedback</small>
+                  </div>
+                  <div class="metric-block">
+                    <strong>13,?00</strong>
+                    <small>window views</small>
+                  </div>
+                </div>
+                <div class="episode-line">
+                  <div>
+                    <strong>もしも最恐の母が総理大臣になったら</strong>
+                    <span>権力を握った瞬間に法律を私物化する。誇張の伸びが長い。</span>
+                  </div>
+                  <div class="metric-block">
+                    <strong>0.347</strong>
+                    <small>asset feedback</small>
+                  </div>
+                  <div class="metric-block">
+                    <strong>12,?00</strong>
+                    <small>window views</small>
+                  </div>
+                </div>
+                <div class="episode-line">
+                  <div>
+                    <strong>もしも最恐の母が警察官になったら</strong>
+                    <span>自己紹介から事件突入までが異常に速い。SE を強く入れやすい。</span>
+                  </div>
+                  <div class="metric-block">
+                    <strong>0.266</strong>
+                    <small>asset feedback</small>
+                  </div>
+                  <div class="metric-block">
+                    <strong>10,?00</strong>
+                    <small>window views</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="episode-lens">
+        <div class="section-header">
+          <div>
+            <h3>Episode Lens</h3>
+            <p>一本の動画を開いたとき、台本ではなく「役割ごとの強さ」が先に見える面。</p>
+          </div>
+        </div>
+
+        <div class="panel-grid">
+          <div class="panel">
+            <div class="panel-top">
+              <div>
+                <h4>Selected Episode</h4>
+                <p id="episode-lens-subtitle">もしも最恐の母が教師になったら</p>
+              </div>
+            </div>
+            <video id="episode-player" controls muted preload="metadata" playsinline src="../downloads/public_youtube/20250301_VRpfa-GJh9A_もしも最恐の母が教師になったら.mp4" style="display:block;width:100%;aspect-ratio:16/9;background:#130f0d;border-radius:18px;margin-bottom:18px;"></video>
+            <div class="timeline-radar">
+              <div class="timeline-row">
+                <span class="timeline-label">Hook</span>
+                <div class="timeline-bar"><div class="timeline-fill" id="episode-hook-bar" style="width: 91%"></div></div>
+                <strong id="episode-hook-score">0.454</strong>
+              </div>
+              <div class="timeline-row">
+                <span class="timeline-label">Beat</span>
+                <div class="timeline-bar"><div class="timeline-fill" id="episode-beat-bar" style="width: 76%"></div></div>
+                <strong id="episode-beat-score">0.379</strong>
+              </div>
+              <div class="timeline-row">
+                <span class="timeline-label">Payoff</span>
+                <div class="timeline-bar"><div class="timeline-fill" id="episode-payoff-bar" style="width: 61%"></div></div>
+                <strong id="episode-payoff-score">0.304</strong>
+              </div>
+            </div>
+            <div class="jump-grid">
+              <button class="jump-button" type="button" data-jump-target="hook">Jump to Hook <span id="episode-hook-time">00:07</span></button>
+              <button class="jump-button" type="button" data-jump-target="beat">Jump to Beat <span id="episode-beat-time">03:53</span></button>
+              <button class="jump-button" type="button" data-jump-target="payoff">Jump to Payoff <span id="episode-payoff-time">08:15</span></button>
+            </div>
+            <p class="lens-summary" id="episode-summary">hook が強い。導入直後から「学校という秩序」を母が上書きする。</p>
+            <p class="footer-note">本番ではここに transcript excerpt、SE、BGM、テロップ密度、離脱しやすい秒を重ねる想定。</p>
+          </div>
+
+          <div class="stack-panel">
+            <div>
+              <div class="panel-top">
+                <div>
+                  <h4>What Worked</h4>
+                  <p>この回を伸ばした要素。</p>
+                </div>
+              </div>
+              <div class="chip-row" id="episode-what-worked">
+                <span class="chip is-active">冒頭数秒で遅刻危機</span>
+                <span class="chip is-active">母の乱入が早い</span>
+                <span class="chip is-active">学校の秩序破壊</span>
+                <span class="chip is-active">ツッコミ役が遅れない</span>
+              </div>
+            </div>
+            <div>
+              <div class="panel-top">
+                <div>
+                  <h4>Guardrails</h4>
+                  <p>キャラ矛盾と焼き直しを防ぐための面。</p>
+                </div>
+              </div>
+              <div class="chip-row" id="episode-guardrails">
+                <span class="chip">既存オチの直コピー禁止</span>
+                <span class="chip">導入 20 秒以内に事件化</span>
+                <span class="chip">母が場を支配する理由を作る</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="draft-lab">
+        <div class="section-header">
+          <div>
+            <h3>Draft Lab</h3>
+            <p>brief から出てきた候補を、比較しながら次のバッチに送る面。</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-top">
+            <div>
+              <h4>Idea Batch / mother-profession</h4>
+              <p>最新の feedback 反映後に再生成した 5 本。</p>
+            </div>
+          </div>
+
+          <div class="draft-list">
+            <article class="draft-card">
+              <h5>もしも最恐の母が天才外科医になったら</h5>
+              <div class="draft-meta">
+                <span class="tag feedback">source hook 0.454</span>
+                <span class="tag system">operating room chaos</span>
+              </div>
+              <p>医療ドラマの緊迫感から、母が白衣を奪って手術室に突入する急展開。職業権威と家庭内支配が直結する。</p>
+            </article>
+            <article class="draft-card">
+              <h5>もしも最恐の母が人気ラーメン店の店主になったら</h5>
+              <div class="draft-meta">
+                <span class="tag feedback">source hook 0.415</span>
+                <span class="tag system">shop-control comedy</span>
+              </div>
+              <p>店を継ぐというより乗っ取る。栄養思想と完食圧力で客もスタッフも巻き込む型。</p>
+            </article>
+            <article class="draft-card">
+              <h5>もしも最恐の母が人気ゲーム実況者になったら</h5>
+              <div class="draft-meta">
+                <span class="tag feedback">source beat 0.332</span>
+                <span class="tag system">culture-takeover</span>
+              </div>
+              <p>ゲーム実況という若い文脈に母が乱入し、コメント欄まで支配する。現代感が出しやすい。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="ops-feed">
+        <div class="section-header">
+          <div>
+            <h3>Ops Feed</h3>
+            <p>壊れている箇所を探す画面ではなく、今どこまで緑かを一目で見る運用面。</p>
+          </div>
+        </div>
+
+        <div class="panel-grid">
+          <div class="panel">
+            <div class="panel-top">
+              <div>
+                <h4>Pipeline Status</h4>
+                <p>latest50 corpus の現在地。</p>
+              </div>
+            </div>
+            <div class="ops-list">
+              <article class="ops-card">
+                <h5>Corpus</h5>
+                <div class="ops-meta">
+                  <span class="tag system">50 included</span>
+                  <span class="tag system">0 blocker</span>
+                </div>
+                <p>sample asset は外し、コメディ動画のみ active。</p>
+              </article>
+              <article class="ops-card">
+                <h5>Embedding</h5>
+                <div class="ops-meta">
+                  <span class="tag system">50/50 asset</span>
+                  <span class="tag system">136/136 timeline</span>
+                </div>
+                <p>Gemini Embedding 2 と Pinecone の upsert は完了。</p>
+              </article>
+              <article class="ops-card">
+                <h5>Feedback</h5>
+                <div class="ops-meta">
+                  <span class="tag system">50/50 retention</span>
+                  <span class="tag system">712,822 views</span>
+                </div>
+                <p>誤チャンネル OAuth を外した後の最新同期で正常化。</p>
+              </article>
+            </div>
+          </div>
+
+          <div class="stack-panel">
+            <div>
+              <div class="panel-top">
+                <div>
+                  <h4>Alerts</h4>
+                  <p>今は止めるべき問題がない状態。</p>
+                </div>
+              </div>
+              <div class="chip-row">
+                <span class="chip is-active">doctor 12/12 OK</span>
+                <span class="chip is-active">oauth token removed</span>
+                <span class="chip is-active">metadata resynced</span>
+              </div>
+            </div>
+            <div>
+              <div class="panel-top">
+                <div>
+                  <h4>What To Build Next</h4>
+                  <p>モックの次に実装価値が高い部分。</p>
+                </div>
+              </div>
+              <div class="chip-row">
+                <span class="chip">Query Studio 実装</span>
+                <span class="chip">Episode Lens 実装</span>
+                <span class="chip">Idea Batch 比較面</span>
+                <span class="chip">Cohort 切替の永続化</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const targets = document.querySelectorAll("[data-cohort-target]");
+    const panels = document.querySelectorAll("[data-cohort-panel]");
+    const episodeButtons = document.querySelectorAll("[data-episode-target]");
+    const jumpButtons = document.querySelectorAll("[data-jump-target]");
+    const episodePlayer = document.getElementById("episode-player");
+    const episodeSubtitle = document.getElementById("episode-lens-subtitle");
+    const episodeSummary = document.getElementById("episode-summary");
+    const episodeWhatWorked = document.getElementById("episode-what-worked");
+    const episodeGuardrails = document.getElementById("episode-guardrails");
+    const episodeHookBar = document.getElementById("episode-hook-bar");
+    const episodeBeatBar = document.getElementById("episode-beat-bar");
+    const episodePayoffBar = document.getElementById("episode-payoff-bar");
+    const episodeHookScore = document.getElementById("episode-hook-score");
+    const episodeBeatScore = document.getElementById("episode-beat-score");
+    const episodePayoffScore = document.getElementById("episode-payoff-score");
+    const episodeHookTime = document.getElementById("episode-hook-time");
+    const episodeBeatTime = document.getElementById("episode-beat-time");
+    const episodePayoffTime = document.getElementById("episode-payoff-time");
+
+    const episodes = {
+      "mother-teacher": {
+        cohort: "mother",
+        title: "もしも最恐の母が教師になったら",
+        src: "../downloads/public_youtube/20250301_VRpfa-GJh9A_もしも最恐の母が教師になったら.mp4",
+        summary: "hook が強い。導入直後から『学校という秩序』を母が上書きする。",
+        hook: { score: "0.454", width: "91%", time: "00:07", seek: 7.59 },
+        beat: { score: "0.379", width: "76%", time: "03:53", seek: 233.75 },
+        payoff: { score: "0.304", width: "61%", time: "08:15", seek: 495.07 },
+        worked: ["冒頭数秒で遅刻危機", "母の乱入が早い", "学校の秩序破壊", "ツッコミ役が遅れない"],
+        guardrails: ["既存オチの直コピー禁止", "導入20秒以内に事件化", "教師あるある説明で尺を使いすぎない"]
+      },
+      "mother-police": {
+        cohort: "mother",
+        title: "もしも最恐の母が警察官になったら",
+        src: "../downloads/public_youtube/20230819_t6HMD8ILSCc_もしも最恐の母が警察官になったら｜アイルトンモカコラボ.mp4",
+        summary: "自己紹介から事件化までが極端に速い。冒頭で職業ギャップを叩き込む回。",
+        hook: { score: "0.341", width: "68%", time: "00:03", seek: 3.35 },
+        beat: { score: "0.226", width: "45%", time: "05:20", seek: 320.8 },
+        payoff: { score: "0.190", width: "38%", time: "09:41", seek: 581.2 },
+        worked: ["母の自己紹介がすぐ事件に接続", "制服が権威の装置になる", "SE を強く入れやすい", "共犯っぽい息子の立ち位置"],
+        guardrails: ["警察知識の説明に寄りすぎない", "逮捕オチの焼き直し禁止", "コラボ要素を主軸にしすぎない"]
+      },
+      "mother-prime-minister": {
+        cohort: "mother",
+        title: "もしも最恐の母が総理大臣になったら",
+        src: "../downloads/public_youtube/20240726_wunP_ldoO2M_もしも最恐の母が総理大臣になったら.mp4",
+        summary: "権力を握った後の beat が強い。ルール改変で世界を広げる型。",
+        hook: { score: "0.415", width: "83%", time: "00:04", seek: 4.51 },
+        beat: { score: "0.332", width: "66%", time: "04:13", seek: 253.36 },
+        payoff: { score: "0.274", width: "55%", time: "08:58", seek: 538.43 },
+        worked: ["法律を私物化する発想の飛躍", "スケールが大きくても母の私情で回る", "後半の制度改変が連打できる"],
+        guardrails: ["政治ネタの説明で重くしない", "時事寄りにしすぎない", "権限の強さだけで押し切らない"]
+      },
+      "genius-convenience": {
+        cohort: "genius",
+        title: "もしも天才小学生がコンビニを開いたら",
+        src: "../downloads/public_youtube/20260131_711drNaskpQ_もしも天才小学生がコンビニを開いたら.mp4",
+        summary: "店ものの中でも支配の立ち上がりが速い。説明より仕切りの面白さを優先する。",
+        hook: { score: "0.372", width: "74%", time: "00:05", seek: 5.2 },
+        beat: { score: "0.298", width: "60%", time: "03:12", seek: 192.0 },
+        payoff: { score: "0.244", width: "49%", time: "07:40", seek: 460.0 },
+        worked: ["商品説明よりもルール作りが先", "客を相手に小学生が仕切る異常さ", "テンポの速い会話密度"],
+        guardrails: ["店舗説明パートを長くしない", "品出しネタに寄りすぎない", "接客あるあるの羅列にしない"]
+      },
+      "genius-ramen": {
+        cohort: "genius",
+        title: "もしも天才小学生がラーメン屋を開いたら",
+        src: "../downloads/public_youtube/20251219_n3pd5-oK3uc_もしも天才小学生がラーメン屋を開いたら ｜ アイルトンモカコラボ.mp4",
+        summary: "厨房という密室空間でも会話の圧でテンポを保つ。コラボ処理の見本。",
+        hook: { score: "0.355", width: "71%", time: "00:06", seek: 6.4 },
+        beat: { score: "0.306", width: "61%", time: "03:48", seek: 228.0 },
+        payoff: { score: "0.251", width: "50%", time: "08:02", seek: 482.0 },
+        worked: ["仕込みより客対応が主役", "店の空気を最初に決める", "コラボ相手が邪魔になっていない"],
+        guardrails: ["料理描写でテンポを殺さない", "食レポに寄せすぎない", "コラボの説明で冒頭を使わない"]
+      },
+      "genius-burger": {
+        cohort: "genius",
+        title: "もしも天才小学生がハンバーガー屋を開いたら",
+        src: "../downloads/public_youtube/20240615_Kqb540Pikrc_もしも天才小学生がハンバーガー屋を開いたら.mp4",
+        summary: "商品見せの楽しさと口喧嘩の圧を両立する。店ものの量産参考回。",
+        hook: { score: "0.331", width: "66%", time: "00:04", seek: 4.2 },
+        beat: { score: "0.273", width: "55%", time: "03:15", seek: 195.0 },
+        payoff: { score: "0.219", width: "44%", time: "07:28", seek: 448.0 },
+        worked: ["商品ビジュアルに頼りすぎない", "店舗支配ネタを会話で転がす", "客と店主の距離が近い"],
+        guardrails: ["調理工程を説明しすぎない", "既存チェーン parody に寄せすぎない", "食材ボケだけで終わらせない"]
+      },
+      "school-sports-day": {
+        cohort: "school",
+        title: "天才小学生のヤバすぎる運動会",
+        src: "../downloads/public_youtube/20250728_zldukTlXmkU_天才小学生のヤバすぎる運動会.mp4",
+        summary: "学校行事を生存競争に変える回。競争圧で全カットを前に押せる。",
+        hook: { score: "0.319", width: "64%", time: "00:05", seek: 5.0 },
+        beat: { score: "0.287", width: "57%", time: "03:40", seek: 220.0 },
+        payoff: { score: "0.241", width: "48%", time: "07:10", seek: 430.0 },
+        worked: ["勝敗と妨害の両輪", "学校イベントを戦場化", "競技説明より感情の圧"],
+        guardrails: ["競技ルール説明で尺を使わない", "ただの実況にしない", "障害物ボケの連打で単調化しない"]
+      },
+      "school-cooking": {
+        cohort: "school",
+        title: "天才小学生のヤバすぎる調理実習",
+        src: "../downloads/public_youtube/20230217_2HQifx-HbK0_天才小学生のヤバすぎる調理実習.mp4",
+        summary: "平和な授業を事故寸前のドタバタに崩す。教室を厨房化する型。",
+        hook: { score: "0.322", width: "64%", time: "00:04", seek: 4.3 },
+        beat: { score: "0.285", width: "57%", time: "03:02", seek: 182.0 },
+        payoff: { score: "0.233", width: "47%", time: "06:45", seek: 405.0 },
+        worked: ["授業の安全性をすぐ壊す", "料理より人間関係が前に出る", "教室空間を狭く使って密度を出す"],
+        guardrails: ["レシピ説明に寄せない", "料理失敗ネタだけで進めない", "先生の無能化に頼りすぎない"]
+      },
+      "school-marathon": {
+        cohort: "school",
+        title: "天才小学生のヤバすぎるマラソン大会",
+        src: "../downloads/public_youtube/20230303_f66gIxKdhPo_天才小学生のヤバすぎるマラソン大会.mp4",
+        summary: "長距離イベントを妨害とズルの応酬に変える。競争圧の設計参考回。",
+        hook: { score: "0.361", width: "72%", time: "00:06", seek: 6.1 },
+        beat: { score: "0.302", width: "60%", time: "03:18", seek: 198.0 },
+        payoff: { score: "0.247", width: "49%", time: "07:54", seek: 474.0 },
+        worked: ["走る前から駆け引きが始まる", "ズルと逆転の速度が速い", "イベントの空気をすぐ壊せる"],
+        guardrails: ["ただの足の速さ比べにしない", "実況だけで終わらせない", "ルール違反の列挙で単調化しない"]
+      }
+    };
+
+    function renderChipRow(container, items, active) {
+      container.innerHTML = "";
+      items.forEach((item) => {
+        const chip = document.createElement("span");
+        chip.className = active ? "chip is-active" : "chip";
+        chip.textContent = item;
+        container.appendChild(chip);
+      });
+    }
+
+    function selectEpisode(key) {
+      const episode = episodes[key];
+      if (!episode) {
+        return;
+      }
+
+      episodeSubtitle.textContent = episode.title;
+      episodePlayer.src = episode.src;
+      episodePlayer.load();
+      episodeSummary.textContent = episode.summary;
+
+      episodeHookBar.style.width = episode.hook.width;
+      episodeBeatBar.style.width = episode.beat.width;
+      episodePayoffBar.style.width = episode.payoff.width;
+      episodeHookScore.textContent = episode.hook.score;
+      episodeBeatScore.textContent = episode.beat.score;
+      episodePayoffScore.textContent = episode.payoff.score;
+      episodeHookTime.textContent = episode.hook.time;
+      episodeBeatTime.textContent = episode.beat.time;
+      episodePayoffTime.textContent = episode.payoff.time;
+
+      renderChipRow(episodeWhatWorked, episode.worked, true);
+      renderChipRow(episodeGuardrails, episode.guardrails, false);
+
+      episodePlayer.dataset.hookSeek = String(episode.hook.seek);
+      episodePlayer.dataset.beatSeek = String(episode.beat.seek);
+      episodePlayer.dataset.payoffSeek = String(episode.payoff.seek);
+
+      episodeButtons.forEach((button) => {
+        button.classList.toggle("is-active", button.dataset.episodeTarget === key);
+      });
+    }
+
+    function activateCohort(key) {
+      targets.forEach((node) => {
+        node.classList.toggle("is-active", node.dataset.cohortTarget === key);
+      });
+      panels.forEach((node) => {
+        node.classList.toggle("is-active", node.dataset.cohortPanel === key);
+      });
+
+      const firstEpisodeButton = document.querySelector(`[data-cohort-panel="${key}"] [data-episode-target]`);
+      if (firstEpisodeButton) {
+        selectEpisode(firstEpisodeButton.dataset.episodeTarget);
+      }
+    }
+
+    targets.forEach((node) => {
+      node.addEventListener("click", () => activateCohort(node.dataset.cohortTarget));
+    });
+
+    episodeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        selectEpisode(button.dataset.episodeTarget);
+        document.getElementById("episode-lens").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+
+    jumpButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const seekKey = button.dataset.jumpTarget + "Seek";
+        const seekValue = Number(episodePlayer.dataset[seekKey] || "0");
+        episodePlayer.currentTime = seekValue;
+        episodePlayer.play().catch(() => {});
+      });
+    });
+
+    activateCohort("mother");
+  </script>
+</body>
+</html>

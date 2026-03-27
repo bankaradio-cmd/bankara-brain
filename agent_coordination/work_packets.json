@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "updated_at": "2026-03-13",
+  "packets": [
+    {
+      "id": "P0-FEEDBACK-V2",
+      "priority": "P0",
+      "owner": "Claude Code Lead",
+      "contract": "agent_coordination/contracts/feedback_score_v2.md",
+      "goal": "Introduce hook/CTR/engagement/recency-aware feedback scoring and make it usable by retrieval.",
+      "touch_files": [
+        "bankara_brain_control_plane.py",
+        "README.md",
+        "bankara_feedback_v2.py"
+      ],
+      "acceptance": [
+        "feedback_score_v2 is stored for assets",
+        "timeline propagation exists",
+        "diagnostics can show non-zero distribution",
+        "search can rerank on feedback_score_v2"
+      ]
+    },
+    {
+      "id": "P0-VISUAL-AUDIO-SUMMARY",
+      "priority": "P0",
+      "owner": "Codex or Claude Code Multimodal",
+      "contract": "agent_coordination/contracts/visual_audio_summary_v2.md",
+      "goal": "Produce shot-based visual/audio structured summaries that improve retrieval and generation quality.",
+      "touch_files": [
+        "bankara_visual_audio_summary.py",
+        "agent_coordination/contracts/visual_audio_summary_v2.md"
+      ],
+      "depends_on": [
+        "P0-FEEDBACK-V2",
+        "P0-CROSS-ENCODER-RERANK"
+      ],
+      "acceptance": [
+        "5 real videos emit valid JSON summaries",
+        "searchable summary text exists",
+        "output schema matches contract"
+      ]
+    },
+    {
+      "id": "P0-CROSS-ENCODER-RERANK",
+      "priority": "P0",
+      "owner": "Codex",
+      "contract": "agent_coordination/contracts/cross_encoder_rerank.md",
+      "goal": "Use Gemini to rerank top semantic candidates and improve open retrieval purity.",
+      "touch_files": [
+        "bankara_cross_encoder_rerank.py"
+      ],
+      "acceptance": [
+        "isolated reranker module exists",
+        "module-level tests exist or runnable validation script exists",
+        "integration notes are reported for Claude Lead"
+      ]
+    },
+    {
+      "id": "P1-DRAFT-OUTCOMES",
+      "priority": "P1",
+      "owner": "Claude Code Lead",
+      "contract": null,
+      "goal": "Join generated drafts to published outcomes for real learning loops.",
+      "touch_files": [
+        "bankara_brain_control_plane.py"
+      ],
+      "acceptance": [
+        "draft outcomes are queryable",
+        "predicted vs actual score can be reported"
+      ]
+    },
+    {
+      "id": "P1-BGM-CATALOG",
+      "priority": "P1",
+      "owner": "Codex",
+      "contract": null,
+      "goal": "Catalog reusable BGM/SE patterns from successful videos.",
+      "touch_files": [
+        "bankara_bgm_catalog.py"
+      ],
+      "acceptance": [
+        "BGM segments can be extracted",
+        "catalog entries can be scored and retrieved"
+      ]
+    },
+    {
+      "id": "P1-HYDE",
+      "priority": "P1",
+      "owner": "Codex",
+      "contract": null,
+      "goal": "Add hypothetical document expansion for lexical-gap queries.",
+      "touch_files": [
+        "bankara_hyde.py",
+        "gemini_pinecone_multimodal_mvp.py"
+      ],
+      "acceptance": [
+        "HyDE can be toggled in search",
+        "hard query benchmark cases improve"
+      ]
+    }
+  ]
+}

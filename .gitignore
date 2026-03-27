@@ -1,0 +1,11 @@
+.env
+.venv/
+.multimodal_ingest_state.json
+__pycache__/
+bankara_brain.db
+object_store/
+.youtube_oauth_token.json
+downloads/
+.youtube_client_secrets.json
+bankara_brain.db.backup_*
+.DS_Store

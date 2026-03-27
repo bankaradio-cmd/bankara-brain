@@ -1,0 +1,1737 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Instagram Automation Viewer</title>
+  <style>
+    :root {
+      --bg: #f5efe6;
+      --panel: #fffdf9;
+      --line: #e7d8c6;
+      --text: #1f1a17;
+      --muted: #6a5f56;
+      --accent: #b24c1a;
+      --accent-soft: #f4ded1;
+      --code: #f3f0eb;
+      --shadow: 0 12px 36px rgba(56, 35, 18, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at top right, rgba(178, 76, 26, 0.12), transparent 28%),
+        linear-gradient(180deg, #f8f2ea 0%, var(--bg) 100%);
+      color: var(--text);
+      font-family: "Hiragino Sans", "Noto Sans JP", sans-serif;
+      line-height: 1.7;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      height: 100vh;
+      padding: 28px 22px;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 253, 249, 0.84);
+      backdrop-filter: blur(10px);
+      overflow-y: auto;
+    }
+
+    .brand {
+      margin-bottom: 22px;
+    }
+
+    .brand h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    .brand p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .nav-group + .nav-group {
+      margin-top: 22px;
+    }
+
+    .nav-group h3 {
+      margin: 0 0 10px;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .nav-group ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 8px;
+    }
+
+    .nav-group a {
+      display: block;
+      padding: 10px 12px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      color: var(--muted);
+      transition: 0.18s ease;
+    }
+
+    .nav-group a:hover {
+      background: var(--accent-soft);
+      border-color: var(--line);
+      color: var(--text);
+    }
+
+    .main {
+      padding: 34px;
+    }
+
+    .hero {
+      margin-bottom: 28px;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(255, 253, 249, 0.98), rgba(255, 245, 237, 0.92));
+      box-shadow: var(--shadow);
+    }
+
+    .hero .eyebrow {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .hero h2 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.1;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-top: 22px;
+    }
+
+    .stat {
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 24px;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .content-group + .content-group {
+      margin-top: 34px;
+    }
+
+    .group-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .group-heading h2 {
+      margin: 0;
+      font-size: 26px;
+    }
+
+    .group-heading p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .doc-card {
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .doc-card + .doc-card {
+      margin-top: 18px;
+    }
+
+    .doc-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .doc-type {
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .doc-path {
+      font-family: ui-monospace, "SFMono-Regular", monospace;
+      overflow-wrap: anywhere;
+    }
+
+    .doc-body h2,
+    .doc-body h3,
+    .doc-body h4,
+    .doc-body h5,
+    .doc-body h6 {
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+      line-height: 1.25;
+    }
+
+    .doc-body h2 {
+      font-size: 28px;
+    }
+
+    .doc-body h3 {
+      font-size: 22px;
+    }
+
+    .doc-body h4 {
+      font-size: 18px;
+    }
+
+    .doc-body p,
+    .doc-body li {
+      color: var(--text);
+    }
+
+    .doc-body p {
+      margin: 0 0 1em;
+    }
+
+    .doc-body ul,
+    .doc-body ol {
+      margin: 0 0 1.1em 1.25em;
+    }
+
+    .doc-body code {
+      padding: 0.15em 0.4em;
+      border-radius: 6px;
+      background: var(--code);
+      font-family: ui-monospace, "SFMono-Regular", monospace;
+      font-size: 0.92em;
+    }
+
+    .doc-body pre {
+      margin: 0 0 1.2em;
+      padding: 16px;
+      overflow-x: auto;
+      border-radius: 16px;
+      background: #221d19;
+      color: #fdf4ea;
+      font-size: 14px;
+    }
+
+    .doc-body pre code {
+      padding: 0;
+      background: transparent;
+      color: inherit;
+    }
+
+    .table-wrap {
+      margin: 0 0 1.25em;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 640px;
+      background: #fff;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #fbf1e7;
+      font-size: 13px;
+      letter-spacing: 0.02em;
+      color: var(--accent);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: relative;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .main {
+        padding: 20px;
+      }
+
+      .hero {
+        padding: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>Instagram 自動化 Viewer</h1>
+        <p>現在の設計書、配布テンプレ、初期台本を1か所で読めるようにまとめた静的ビューアです。</p>
+      </div>
+      
+            <section class="nav-group">
+              <h3>実行用ドキュメント</h3>
+              <ul><li><a href="#docs-instagram-first-account-strategy-ja-md">instagram first account strategy ja</a></li><li><a href="#docs-instagram-first-offer-design-ja-md">instagram first offer design ja</a></li><li><a href="#docs-instagram-first-20-content-ideas-ja-md">instagram first 20 content ideas ja</a></li><li><a href="#docs-instagram-first-5-reel-scripts-ja-md">instagram first 5 reel scripts ja</a></li><li><a href="#docs-instagram-profile-copy-ja-md">instagram profile copy ja</a></li></ul>
+            </section>
+            
+
+            <section class="nav-group">
+              <h3>設計とリサーチ</h3>
+              <ul><li><a href="#docs-instagram-money-engine-design-ja-md">instagram money engine design ja</a></li><li><a href="#docs-instagram-niche-scorecard-ja-md">instagram niche scorecard ja</a></li><li><a href="#docs-instagram-monetization-research-md">instagram monetization research</a></li><li><a href="#docs-instagram-next-step-execution-plan-ja-md">instagram next step execution plan ja</a></li><li><a href="#docs-instagram-ai-pdca-blueprint-md">instagram ai pdca blueprint</a></li></ul>
+            </section>
+            
+
+            <section class="nav-group">
+              <h3>無料オファー7点セット</h3>
+              <ul><li><a href="#offers-free-template-7set-readme-md">README</a></li><li><a href="#offers-free-template-7set-01-reel-script-template-md">01_reel_script_template</a></li><li><a href="#offers-free-template-7set-02-hook-examples-csv">02_hook_examples</a></li><li><a href="#offers-free-template-7set-03-cta-templates-csv">03_cta_templates</a></li><li><a href="#offers-free-template-7set-04-story-ideas-csv">04_story_ideas</a></li><li><a href="#offers-free-template-7set-05-post-calendar-csv">05_post_calendar</a></li><li><a href="#offers-free-template-7set-06-ai-prompts-md">06_ai_prompts</a></li><li><a href="#offers-free-template-7set-07-improvement-checklist-md">07_improvement_checklist</a></li></ul>
+            </section>
+            
+    </aside>
+    <main class="main">
+      <section class="hero">
+        <span class="eyebrow">Workspace Viewer</span>
+        <h2>今やっていることを、そのまま読める形にまとめました。</h2>
+        <p>
+          Instagram自動化プロジェクトの戦略、収益設計、初期コンテンツ、無料オファー素材を、
+          ブラウザで普通に確認できるように整理しています。生成日時は 2026-03-11 21:53 です。
+        </p>
+        <div class="stats">
+          <div class="stat"><strong>18</strong><span>表示対象ファイル</span></div>
+          <div class="stat"><strong>3</strong><span>主要カテゴリ</span></div>
+          <div class="stat"><strong>5</strong><span>初期リール台本</span></div>
+          <div class="stat"><strong>7</strong><span>無料配布テンプレ</span></div>
+        </div>
+      </section>
+      
+            <section class="content-group">
+              <div class="group-heading">
+                <h2>実行用ドキュメント</h2>
+                <p>5 files</p>
+              </div>
+              
+    <article class="doc-card" id="docs-instagram-first-account-strategy-ja-md">
+      <div class="doc-meta">
+        <span class="doc-type">MD</span>
+        <span class="doc-path">docs/instagram-first-account-strategy-ja.md</span>
+      </div>
+      <div class="doc-body">
+        <h2>最初の1アカウント戦略書</h2>
+<p>更新日: 2026-03-11 JST</p>
+<h3>1. 前提</h3>
+<p>この戦略書では、最初の1アカウントのテーマを以下で固定します。</p>
+<p><code>AIでInstagram運用を効率化する</code></p>
+<p>理由:</p>
+<ul><li>今回のプロジェクト文脈と直結している</li><li>自分で使う仕組みをそのまま発信テーマに転換できる</li><li>アフィリエイト、テンプレ販売、導入支援へ自然につながる</li><li>顔出し必須ではない</li><li>Reels、Stories、カルーセル、DM誘導と相性が良い</li></ul>
+<h3>2. 誰向けのアカウントか</h3>
+<p>最初のターゲットは広げすぎない方がよいです。</p>
+<p>一次ターゲット:</p>
+<ul><li>Instagram集客をしたい小規模事業者</li><li>1人社長</li><li>フリーランス</li><li>小規模チームのSNS担当</li></ul>
+<p>二次ターゲット:</p>
+<ul><li>Instagram運用代行の見習い層</li><li>コンテンツ制作を効率化したいクリエイター</li></ul>
+<h4>ターゲットの悩み</h4>
+<ul><li>投稿ネタが続かない</li><li>毎回台本を考えるのが重い</li><li>リールを作る時間がない</li><li>投稿しても売上につながらない</li><li>何を改善すればよいかわからない</li></ul>
+<h3>3. 提供価値</h3>
+<p>アカウントの役割はこれです。</p>
+<p><code>AIを使ってInstagram運用の手間を減らし、投稿から売上までつながる仕組みをわかりやすく見せる</code></p>
+<p>このアカウントで視聴者が得るもの:</p>
+<ul><li>投稿の考え方</li><li>AIツールの使い方</li><li>リール構成</li><li>台本テンプレ</li><li>CTA設計</li><li>改善方法</li></ul>
+<h3>4. ポジショニング</h3>
+<p>競合と同じ「ノウハウ発信」だけでは弱いです。</p>
+<p>このアカウントは次の位置を取ります。</p>
+<p><code>机上の空論を話すアカウント</code> ではなく、<code>AIを実際に回しながらInstagram運用を仕組み化するアカウント</code></p>
+<p>差別化の軸:</p>
+<ul><li>AIツールの単発紹介ではなく、運用フロー全体を見せる</li><li>伸びる話だけでなく、売上につながる話をする</li><li>テンプレや自動化の再現性を重視する</li><li>投稿制作だけでなく、分析と改善まで扱う</li></ul>
+<h3>5. 収益モデル</h3>
+<p>最初の収益構造は以下で固定します。</p>
+<ol><li>無料リード獲得</li><li>AI/SaaS系アフィリエイト</li><li>低単価商品</li><li>導入支援 / コンサル</li></ol>
+<h4>優先順位</h4>
+<ul><li>初速を出す: アフィリエイト</li><li>リストを貯める: 無料オファー</li><li>利益率を上げる: 自社商品</li><li>高単価化する: 支援サービス</li></ul>
+<h3>6. 商品階段</h3>
+<h4>無料オファー</h4>
+<p><code>Instagram運用をAIで効率化するための7日分テンプレ集</code></p>
+<p>形式:</p>
+<ul><li>PDF</li><li>Notionテンプレ</li><li>プロンプト集</li></ul>
+<p>目的:</p>
+<ul><li>LINE</li><li>メルマガ</li><li>メール</li></ul>
+<h4>低単価商品</h4>
+<p><code>30日分のリール台本テンプレート集</code></p>
+<p>価格仮説:</p>
+<ul><li>1,980円</li><li>2,980円</li><li>4,980円</li></ul>
+<h4>中核商品</h4>
+<p><code>Instagram AI運用スターターキット</code></p>
+<p>内容:</p>
+<ul><li>台本テンプレ</li><li>CTAテンプレ</li><li>分析シート</li><li>投稿管理シート</li><li>導線設計テンプレ</li></ul>
+<p>価格仮説:</p>
+<ul><li>9,800円</li><li>14,800円</li><li>19,800円</li></ul>
+<h4>高単価商品</h4>
+<p><code>AIでInstagram運用を仕組み化する導入支援</code></p>
+<p>形式:</p>
+<ul><li>単発相談</li><li>設計代行</li><li>伴走支援</li></ul>
+<p>価格仮説:</p>
+<ul><li>単発 29,800円</li><li>設計 99,800円</li><li>伴走 月額 150,000円以上</li></ul>
+<h3>7. ファネル設計</h3>
+<h4>集客</h4>
+<ul><li>Reels</li><li>一部カルーセル</li></ul>
+<h4>温度上げ</h4>
+<ul><li>Stories</li><li>プロフィール</li><li>固定投稿</li></ul>
+<h4>回収</h4>
+<ul><li>プロフィールリンク</li><li>DM誘導</li><li>ストーリーのリンクスタンプ</li></ul>
+<h4>販売</h4>
+<ul><li>アフィリエイト比較ページ</li><li>無料オファーLP</li><li>商品販売ページ</li><li>相談予約ページ</li></ul>
+<h3>8. コンテンツ柱</h3>
+<p>柱は3本で十分です。</p>
+<h4>柱1: AIツール実演</h4>
+<p>例:</p>
+<ul><li>この作業はこのAIで何分削減できるか</li><li>投稿ネタ出しをAIでどう回すか</li><li>台本作成をどう短縮するか</li></ul>
+<p>目的:</p>
+<ul><li>非フォロワーリーチ</li><li>アフィリエイト接続</li></ul>
+<h4>柱2: Instagram運用改善</h4>
+<p>例:</p>
+<ul><li>伸びないリールの直し方</li><li>CTAの違い</li><li>ストーリーの使い方</li><li>プロフ改善</li></ul>
+<p>目的:</p>
+<ul><li>信頼獲得</li><li>相談導線</li></ul>
+<h4>柱3: 仕組み化 / 自動化</h4>
+<p>例:</p>
+<ul><li>投稿フローの分業</li><li>分析テンプレ</li><li>PDCAの回し方</li><li>AIで作業を自動化する考え方</li></ul>
+<p>目的:</p>
+<ul><li>自社商品の価値訴求</li><li>高単価支援につなぐ</li></ul>
+<h3>9. 投稿フォーマット</h3>
+<p>最初は3種類で固定します。</p>
+<h4>フォーマットA</h4>
+<p><code>問題 -&gt; AIでの解決 -&gt; 結果 -&gt; CTA</code></p>
+<p>向いている内容:</p>
+<ul><li>実演</li><li>ツール紹介</li><li>時短</li></ul>
+<h4>フォーマットB</h4>
+<p><code>よくある失敗 -&gt; 修正案3つ -&gt; CTA</code></p>
+<p>向いている内容:</p>
+<ul><li>Instagram改善</li><li>CTA改善</li><li>プロフ改善</li></ul>
+<h4>フォーマットC</h4>
+<p><code>ビフォー -&gt; 運用設計 -&gt; アフター -&gt; CTA</code></p>
+<p>向いている内容:</p>
+<ul><li>仕組み化</li><li>支援サービス</li><li>テンプレ販売</li></ul>
+<h3>10. CTA設計</h3>
+<p>最初はCTAを増やしすぎないことが重要です。</p>
+<p>使うCTAは3つに固定します。</p>
+<h4>CTA 1</h4>
+<p><code>テンプレはプロフから</code></p>
+<p>目的:</p>
+<ul><li>リード獲得</li></ul>
+<h4>CTA 2</h4>
+<p><code>使っているツール一覧はプロフから</code></p>
+<p>目的:</p>
+<ul><li>アフィリエイト</li></ul>
+<h4>CTA 3</h4>
+<p><code>運用を仕組み化したい人はDMで「設計」と送ってください</code></p>
+<p>目的:</p>
+<ul><li>高単価相談</li></ul>
+<h3>11. プロフィール案</h3>
+<h4>名前欄の方向性</h4>
+<p><code>AIでInstagram運用を効率化</code></p>
+<h4>Bio草案</h4>
+<p><code>AIで投稿作成と改善を最短化</code> <code>リール台本 / 導線 / 分析を仕組み化</code> <code>無料テンプレは下のリンクから</code></p>
+<h4>リンク先の優先順</h4>
+<ol><li>無料テンプレ</li><li>ツール一覧</li><li>相談予約</li></ol>
+<h3>12. ストーリー運用</h3>
+<p>Storiesは売上に直結しやすいので軽視しない方がよいです。</p>
+<p>日次で回す枠:</p>
+<ul><li>実践ログ</li><li>ツール紹介</li><li>よくある質問</li><li>アンケート</li><li>リンク誘導</li></ul>
+<p>ハイライト候補:</p>
+<ul><li>はじめての方へ</li><li>テンプレ</li><li>ツール一覧</li><li>実績</li><li>相談</li></ul>
+<h3>13. KPI</h3>
+<p>最初の30日で最重要なのは、再生数より導線反応です。</p>
+<p>追う指標:</p>
+<ul><li>プロフィール訪問率</li><li>リンククリック率</li><li>無料オファー登録率</li><li>DM開始率</li><li>アフィリエイトクリック率</li><li>投稿あたり売上</li></ul>
+<p>補助指標:</p>
+<ul><li>保存率</li><li>シェア率</li><li>完視聴率</li><li>フォロー率</li></ul>
+<h3>14. 最初の30日で勝ちとみなす条件</h3>
+<p>以下のどれかが成立すれば前進です。</p>
+<ul><li>無料オファー登録が継続して発生する</li><li>アフィリエイトクリックが発生する</li><li>DM相談が発生する</li><li>特定のフォーマットでプロフィール訪問率が明確に高い</li></ul>
+<h3>15. やらないこと</h3>
+<ul><li>複数ジャンルを同時に触る</li><li>いきなり高額商品だけを売る</li><li>毎回CTAを変える</li><li>毎日違うターゲットに話す</li><li>無意味な最新ツール紹介だけを量産する</li></ul>
+<h3>16. 初期運用リズム</h3>
+<p>週次の基本形:</p>
+<ul><li>Reels 5本</li><li>Stories 毎日</li><li>固定投稿の改善 週1回</li><li>成績レビュー 週1回</li><li>CTA比較レビュー 週1回</li></ul>
+<h3>17. この戦略の狙い</h3>
+<p>このアカウントは、フォロワーを増やすためだけのメディアではありません。</p>
+<p>狙いは次の3つです。</p>
+<ul><li>需要のあるテーマを見つける</li><li>クリックと登録が出る導線を見つける</li><li>将来的に自動化システムの販売や支援に展開できる実績を作る</li></ul>
+      </div>
+    </article>
+    
+    <article class="doc-card" id="docs-instagram-first-offer-design-ja-md">
+      <div class="doc-meta">
+        <span class="doc-type">MD</span>
+        <span class="doc-path">docs/instagram-first-offer-design-ja.md</span>
+      </div>
+      <div class="doc-body">
+        <h2>最初のオファー設計書</h2>
+<p>更新日: 2026-03-11 JST</p>
+<h3>1. 目的</h3>
+<p>この設計書は、最初の1アカウントで「何を売るか」を固定するためのものです。</p>
+<p>前提:</p>
+<ul><li>最初から高額商品だけを売らない</li><li>まずはリード獲得と初回成約を作る</li><li>アフィリエイトと自社商品を両立させる</li></ul>
+<h3>2. 初期オファーの全体像</h3>
+<p>最初のオファー構造は4段階で設計します。</p>
+<ol><li>無料オファー</li><li>アフィリエイト導線</li><li>低単価商品</li><li>高単価支援</li></ol>
+<h3>3. 無料オファー</h3>
+<h4>仮タイトル</h4>
+<p><code>AIでInstagram運用を効率化する無料テンプレ7点セット</code></p>
+<h4>中身</h4>
+<ul><li>リール台本テンプレ</li><li>フック例30本</li><li>CTAテンプレ10本</li><li>ストーリーネタテンプレ</li><li>投稿管理シート</li><li>AIへの指示プロンプト</li><li>改善チェックリスト</li></ul>
+<h4>配布形式</h4>
+<ul><li>PDF</li><li>Notion</li><li>Googleスプレッドシート</li></ul>
+<h4>目的</h4>
+<ul><li>LINE登録</li><li>メール登録</li><li>リターゲティングの母集団形成</li></ul>
+<h4>この無料オファーが強い理由</h4>
+<ul><li>すぐ使える</li><li>価値が説明しやすい</li><li>後続商品の内容と直結する</li><li>AI運用アカウントのテーマと一致する</li></ul>
+<h3>4. アフィリエイト導線</h3>
+<h4>売るものの条件</h4>
+<ul><li>実際に使うツールであること</li><li>Reels内で実演できること</li><li>価格と便益がわかりやすいこと</li><li>誇大表現なしで紹介できること</li></ul>
+<h4>優先カテゴリ</h4>
+<ul><li>AIライティング</li><li>動画生成</li><li>字幕 / 音声</li><li>画像生成</li><li>自動化ツール</li><li>SNS運用ツール</li><li>ノート / データ整理ツール</li></ul>
+<h4>導線の置き方</h4>
+<ul><li>Reelsで問題提起</li><li>プロフリンクで比較ページへ</li><li>ストーリーで補足</li><li>比較ページで選び方を示す</li></ul>
+<h4>注意</h4>
+<ul><li>アフィリエイト要素がある投稿は、Metaの案内に沿って開示前提で設計する</li><li>日本のステマ規制も前提にして、明確な広告表示文言を入れる</li></ul>
+<h3>5. 低単価商品の設計</h3>
+<h4>仮商品名</h4>
+<p><code>30日分のInstagram AI台本テンプレ集</code></p>
+<h4>価格仮説</h4>
+<ul><li>第一候補: 2,980円</li><li>第二候補: 4,980円</li></ul>
+<h4>内容</h4>
+<ul><li>30日分のリール台本</li><li>業種別フック</li><li>CTAテンプレ</li><li>ストーリー転用例</li><li>投稿改善メモ欄</li></ul>
+<h4>誰に売るか</h4>
+<ul><li>投稿ネタが続かない人</li><li>毎回台本を考えるのが重い人</li><li>AIを使いたいが設計がわからない人</li></ul>
+<h4>役割</h4>
+<ul><li>初回成約を作る</li><li>価格抵抗を下げる</li><li>将来の本命商品の前段にする</li></ul>
+<h3>6. 本命商品の設計</h3>
+<h4>仮商品名</h4>
+<p><code>Instagram AI運用スターターキット</code></p>
+<h4>価格仮説</h4>
+<ul><li>9,800円</li><li>14,800円</li></ul>
+<h4>内容</h4>
+<ul><li>台本テンプレ</li><li>AI指示テンプレ</li><li>KPI管理シート</li><li>CTAテンプレ</li><li>プロフ設計テンプレ</li><li>Stories設計テンプレ</li><li>PDCAレビューシート</li></ul>
+<h4>役割</h4>
+<ul><li>利益率を作る</li><li>実績を作る</li><li>高単価支援への導線にする</li></ul>
+<h3>7. 高単価支援の設計</h3>
+<h4>仮サービス名</h4>
+<p><code>Instagram AI運用設計セッション</code></p>
+<h4>提供形式</h4>
+<ul><li>単発90分相談</li><li>2週間の設計支援</li><li>月額伴走</li></ul>
+<h4>対象</h4>
+<ul><li>自社集客に使いたい事業者</li><li>内製化したい運用担当</li><li>運用の改善点が見えていない人</li></ul>
+<h4>役割</h4>
+<ul><li>単価を上げる</li><li>顧客理解を深める</li><li>商品改善の材料を得る</li></ul>
+<h3>8. オファーの流れ</h3>
+<p>基本導線はこの順です。</p>
+<ol><li>Reelsで悩みを言語化する</li><li>Storiesで具体例を見せる</li><li>無料オファーに登録してもらう</li><li>そこでツール比較やテンプレを案内する</li><li>低単価商品へ案内する</li><li>興味度が高い人を相談へつなぐ</li></ol>
+<h3>9. どの投稿が何を売るか</h3>
+<h4>タイプA</h4>
+<p><code>ツール実演投稿</code></p>
+<p>売るもの:</p>
+<ul><li>アフィリエイト</li><li>無料オファー</li></ul>
+<h4>タイプB</h4>
+<p><code>運用改善投稿</code></p>
+<p>売るもの:</p>
+<ul><li>無料オファー</li><li>低単価商品</li></ul>
+<h4>タイプC</h4>
+<p><code>仕組み化投稿</code></p>
+<p>売るもの:</p>
+<ul><li>本命商品</li><li>高単価相談</li></ul>
+<h3>10. 初期CTAテンプレ</h3>
+<h4>無料オファー向け</h4>
+<p><code>無料テンプレはプロフのリンクから取れます</code></p>
+<h4>アフィリエイト向け</h4>
+<p><code>使っているツールは比較表にまとめています</code></p>
+<h4>相談向け</h4>
+<p><code>自分の運用に落とし込みたい人はDMで「設計」と送ってください</code></p>
+<h3>11. 初期価格戦略</h3>
+<p>最初は高くしすぎない方がよいです。</p>
+<p>理由:</p>
+<ul><li>実績が薄い初期は意思決定コストが高い</li><li>まずは成約データがほしい</li><li>価格より導線と訴求の改善余地が大きい</li></ul>
+<p>初期の考え方:</p>
+<ul><li>無料でリスト獲得</li><li>2,980円前後で初回成約</li><li>1万円前後で中核商品</li><li>3万円以上で相談</li></ul>
+<h3>12. 売らない方がよいもの</h3>
+<ul><li>抽象的な高額講座</li><li>ふわっとした情報商材</li><li>中身が薄いテンプレ集</li><li>実演できない商品</li><li>自分で使っていないツール</li></ul>
+<h3>13. 成功判定</h3>
+<p>最初の30〜60日で見たい反応:</p>
+<ul><li>無料オファー登録が発生する</li><li>アフィリエイトリンクのクリックが出る</li><li>低単価商品の初回成約が出る</li><li>DM相談が発生する</li></ul>
+<h3>14. 次の改善ポイント</h3>
+<p>成約が出た後に見るべきもの:</p>
+<ul><li>どの投稿から登録が出たか</li><li>どのCTAでクリックが出たか</li><li>どの無料オファー内容が強いか</li><li>どの悩み訴求が最も深いか</li></ul>
+<h3>15. このオファー設計の狙い</h3>
+<p>この設計の狙いは、いきなり大きく稼ぐことではありません。</p>
+<p>狙いは次の3つです。</p>
+<ul><li>視聴者の悩みを具体的に掴む</li><li>売れる訴求を見つける</li><li>後で自動化システムに組み込める売上構造を作る</li></ul>
+      </div>
+    </article>
+    
+    <article class="doc-card" id="docs-instagram-first-20-content-ideas-ja-md">
+      <div class="doc-meta">
+        <span class="doc-type">MD</span>
+        <span class="doc-path">docs/instagram-first-20-content-ideas-ja.md</span>
+      </div>
+      <div class="doc-body">
+        <h2>最初の20本の投稿企画</h2>
+<p>更新日: 2026-03-11 JST</p>
+<h3>1. 前提</h3>
+<p>この企画リストは、次のテーマで運用する前提です。</p>
+<p><code>AIでInstagram運用を効率化する</code></p>
+<p>狙い:</p>
+<ul><li>非フォロワーリーチ</li><li>プロフィール遷移</li><li>無料オファー登録</li><li>アフィリエイトクリック</li><li>将来の相談導線づくり</li></ul>
+<h3>2. 運用ルール</h3>
+<p>各投稿には必ず1つだけ主目的を持たせます。</p>
+<p>主目的の種類:</p>
+<ul><li>Reach</li><li>Profile Visit</li><li>Lead</li><li>Affiliate Click</li><li>DM</li></ul>
+<h3>3. 企画一覧</h3>
+<div class="table-wrap"><table><thead><tr><th>No</th><th>フォーマット</th><th>主テーマ</th><th>フック案</th><th>主目的</th><th>CTA</th></tr></thead><tbody><tr><td>1</td><td>実演</td><td>投稿ネタ出し</td><td><code>投稿ネタが思いつかない人、これで終わりです</code></td><td>Lead</td><td>テンプレはプロフ</td></tr><tr><td>2</td><td>実演</td><td>リール台本作成</td><td><code>30分かかる台本作りを5分にした流れ</code></td><td>Affiliate Click</td><td>ツール一覧はプロフ</td></tr><tr><td>3</td><td>改善</td><td>フック改善</td><td><code>伸びないリール、最初の1秒がほぼ原因です</code></td><td>Profile Visit</td><td>続きはプロフ</td></tr><tr><td>4</td><td>改善</td><td>CTA改善</td><td><code>再生されても売れない人はCTAがズレています</code></td><td>Lead</td><td>無料テンプレ配布中</td></tr><tr><td>5</td><td>実演</td><td>ストーリー案出し</td><td><code>毎日ストーリーが止まる人向けのAI使い方</code></td><td>Lead</td><td>テンプレはプロフ</td></tr><tr><td>6</td><td>比較</td><td>ツール比較</td><td><code>台本作成AIを3つ比べたらこれが一番速い</code></td><td>Affiliate Click</td><td>比較表はプロフ</td></tr><tr><td>7</td><td>改善</td><td>プロフ改善</td><td><code>プロフィールで損してる人の共通点3つ</code></td><td>Profile Visit</td><td>プロフ改善例はリンク先</td></tr><tr><td>8</td><td>実演</td><td>投稿量産</td><td><code>1本作ったら3本に増やすやり方</code></td><td>Lead</td><td>テンプレはプロフ</td></tr><tr><td>9</td><td>仕組み化</td><td>投稿フロー</td><td><code>1人運用でも回るInstagram制作フロー</code></td><td>DM</td><td>設計したい人はDM</td></tr><tr><td>10</td><td>実演</td><td>コメント活用</td><td><code>コメントから次の投稿ネタをAIで作る方法</code></td><td>Lead</td><td>無料テンプレ配布中</td></tr><tr><td>11</td><td>改善</td><td>保存率</td><td><code>保存される投稿はこの順番で話しています</code></td><td>Profile Visit</td><td>例はプロフから</td></tr><tr><td>12</td><td>比較</td><td>字幕/音声</td><td><code>AI音声と自分の声、どっちが運用向きか</code></td><td>Affiliate Click</td><td>使用ツールはプロフ</td></tr><tr><td>13</td><td>実演</td><td>カルーセル転用</td><td><code>この1つの台本からリールとカルーセルを同時に作る</code></td><td>Lead</td><td>テンプレはプロフ</td></tr><tr><td>14</td><td>改善</td><td>売上導線</td><td><code>再生だけ増えて売れないアカウントの構造</code></td><td>DM</td><td>導線を見直したい人はDM</td></tr><tr><td>15</td><td>仕組み化</td><td>PDCA</td><td><code>毎回感覚で改善してると伸びません</code></td><td>Lead</td><td>分析テンプレはプロフ</td></tr><tr><td>16</td><td>実演</td><td>リサーチ</td><td><code>競合リサーチをAIで速く終わらせる手順</code></td><td>Affiliate Click</td><td>ツール一覧はプロフ</td></tr><tr><td>17</td><td>改善</td><td>ストーリー誘導</td><td><code>リールからストーリーへ流す一言で反応が変わる</code></td><td>Profile Visit</td><td>続きはストーリーで</td></tr><tr><td>18</td><td>比較</td><td>自動化</td><td><code>人力運用とAI運用、どこまで差が出るか</code></td><td>DM</td><td>仕組み化したい人はDM</td></tr><tr><td>19</td><td>実演</td><td>7日分まとめ作成</td><td><code>7日分の投稿を一気に作るテンプレ公開</code></td><td>Lead</td><td>テンプレはプロフ</td></tr><tr><td>20</td><td>仕組み化</td><td>全体設計</td><td><code>Instagramは投稿より導線設計が先です</code></td><td>DM</td><td>設計相談はDM</td></tr></tbody></table></div>
+<h3>4. 企画ごとの補足</h3>
+<h4>1. 投稿ネタ出し</h4>
+<p>見せる内容:</p>
+<ul><li>何を入力するか</li><li>どう出力させるか</li><li>どう選ぶか</li></ul>
+<h4>2. リール台本作成</h4>
+<p>見せる内容:</p>
+<ul><li>AIへの指示</li><li>出てきた台本</li><li>修正のポイント</li></ul>
+<h4>3. フック改善</h4>
+<p>見せる内容:</p>
+<ul><li>悪い冒頭</li><li>良い冒頭</li><li>なぜ差が出るか</li></ul>
+<h4>4. CTA改善</h4>
+<p>見せる内容:</p>
+<ul><li>CTAが弱い例</li><li>CTAを改善した例</li><li>どんな反応を狙うか</li></ul>
+<h4>5. ストーリー案出し</h4>
+<p>見せる内容:</p>
+<ul><li>ネタ切れ時の指示</li><li>質問箱ネタ</li><li>リンク導線ネタ</li></ul>
+<h4>6. ツール比較</h4>
+<p>見せる内容:</p>
+<ul><li>比較軸</li><li>向いている人</li><li>使い分け</li></ul>
+<h4>7. プロフ改善</h4>
+<p>見せる内容:</p>
+<ul><li>名前欄</li><li>説明文</li><li>リンク先</li></ul>
+<h4>8. 投稿量産</h4>
+<p>見せる内容:</p>
+<ul><li>1本の素材</li><li>3パターン転用</li><li>工数削減</li></ul>
+<h4>9. 投稿フロー</h4>
+<p>見せる内容:</p>
+<ul><li>ネタ出し</li><li>台本</li><li>制作</li><li>投稿</li><li>分析</li></ul>
+<h4>10. コメント活用</h4>
+<p>見せる内容:</p>
+<ul><li>コメント収集</li><li>分類</li><li>次企画への転用</li></ul>
+<h4>11. 保存率</h4>
+<p>見せる内容:</p>
+<ul><li>保存されやすい構成</li><li>情報量</li><li>最後のまとめ方</li></ul>
+<h4>12. 字幕/音声</h4>
+<p>見せる内容:</p>
+<ul><li>視聴継続への影響</li><li>工数</li><li>使い分け</li></ul>
+<h4>13. カルーセル転用</h4>
+<p>見せる内容:</p>
+<ul><li>リール台本の再利用</li><li>カルーセル構成</li><li>工数削減</li></ul>
+<h4>14. 売上導線</h4>
+<p>見せる内容:</p>
+<ul><li>投稿</li><li>プロフ</li><li>リンク</li><li>商品</li></ul>
+<h4>15. PDCA</h4>
+<p>見せる内容:</p>
+<ul><li>どの数字を見るか</li><li>何を変えるか</li><li>何を残すか</li></ul>
+<h4>16. リサーチ</h4>
+<p>見せる内容:</p>
+<ul><li>AIで整理</li><li>観点の作り方</li><li>使える形への変換</li></ul>
+<h4>17. ストーリー誘導</h4>
+<p>見せる内容:</p>
+<ul><li>リール内の一言</li><li>ストーリーで何を見せるか</li><li>クリックまでの流れ</li></ul>
+<h4>18. 自動化</h4>
+<p>見せる内容:</p>
+<ul><li>手動でやる部分</li><li>AIに任せる部分</li><li>分ける理由</li></ul>
+<h4>19. 7日分まとめ作成</h4>
+<p>見せる内容:</p>
+<ul><li>まとめ作成の流れ</li><li>テンプレ構造</li><li>チェックポイント</li></ul>
+<h4>20. 全体設計</h4>
+<p>見せる内容:</p>
+<ul><li>投稿</li><li>導線</li><li>商品</li><li>改善</li></ul>
+<h3>5. 配分の考え方</h3>
+<p>最初の20本は、以下の配分で回します。</p>
+<ul><li>Lead狙い: 8本</li><li>Affiliate Click狙い: 4本</li><li>Profile Visit狙い: 4本</li><li>DM狙い: 4本</li></ul>
+<h3>6. 初期検証で見るべきこと</h3>
+<p>各投稿で確認すること:</p>
+<ul><li>どのフックが止まるか</li><li>どのテーマでプロフィールに飛ぶか</li><li>どのCTAでクリックが出るか</li><li>どの内容でDMが来るか</li></ul>
+<h3>7. 使い方</h3>
+<p>この20本は一気に全部作るためのものではありません。</p>
+<p>使い方:</p>
+<ol><li>まず10本出す</li><li>反応が良い軸を残す</li><li>弱いテーマを切る</li><li>勝ち筋を増やす</li></ol>
+<h3>8. 次の展開</h3>
+<p>この20本を回した後は、次の3方向に分岐します。</p>
+<ul><li>アフィリエイト反応が強いなら比較投稿を増やす</li><li>Leadが強いならテンプレ訴求を強める</li><li>DMが強いなら相談導線を強める</li></ul>
+      </div>
+    </article>
+    
+    <article class="doc-card" id="docs-instagram-first-5-reel-scripts-ja-md">
+      <div class="doc-meta">
+        <span class="doc-type">MD</span>
+        <span class="doc-path">docs/instagram-first-5-reel-scripts-ja.md</span>
+      </div>
+      <div class="doc-body">
+        <h2>最初の5本のリール台本</h2>
+<p>更新日: 2026-03-11 JST</p>
+<h3>1. 投稿1</h3>
+<h4>テーマ</h4>
+<p>投稿ネタ出しをAIで速くする</p>
+<h4>主目的</h4>
+<p>Lead</p>
+<h4>Hook</h4>
+<p><code>投稿ネタが思いつかない人、これで終わりです</code></p>
+<h4>台本</h4>
+<p><code>毎回ネタ出しで止まる人は、頭で考えすぎです。</code> <code>私は最初に、ターゲット、売りたいもの、よくある悩みの3つだけAIに入れます。</code> <code>すると投稿案が一気に出るので、その中から今週使うテーマだけを選びます。</code> <code>ゼロから考えるよりかなり速いです。</code> <code>無料テンプレはプロフのリンクから取れます。</code></p>
+<h4>画面構成</h4>
+<ul><li>1カット目: 強いHook字幕</li><li>2カット目: ターゲット / 商品 / 悩みの3項目を表示</li><li>3カット目: AI出力例を表示</li><li>4カット目: 投稿案一覧を見せる</li><li>5カット目: CTA</li></ul>
+<h4>キャプション案</h4>
+<p><code>ネタ切れの原因は、考え方ではなく設計不足です。</code> <code>最初に入力する3項目を決めるだけでかなり楽になります。</code> <code>無料テンプレはプロフからどうぞ。</code></p>
+<h3>2. 投稿2</h3>
+<h4>テーマ</h4>
+<p>台本作成をAIで短縮する</p>
+<h4>主目的</h4>
+<p>Affiliate Click</p>
+<h4>Hook</h4>
+<p><code>30分かかる台本作りを5分にした流れ</code></p>
+<h4>台本</h4>
+<p><code>台本作りに時間がかかる人は、いきなり文章を書こうとしていることが多いです。</code> <code>私は先に、Hook、Problem、Solution、CTAの4ブロックでAIに出させます。</code> <code>この形にすると修正もしやすいです。</code> <code>使っているツールはプロフにまとめています。</code></p>
+<h4>画面構成</h4>
+<ul><li>1カット目: Before 30分 / After 5分</li><li>2カット目: 4ブロックの図</li><li>3カット目: AI出力画面</li><li>4カット目: 修正例</li><li>5カット目: CTA</li></ul>
+<h4>キャプション案</h4>
+<p><code>台本は文章力より型です。</code> <code>型を決めてからAIに投げると、速度も修正しやすさも上がります。</code></p>
+<h3>3. 投稿3</h3>
+<h4>テーマ</h4>
+<p>伸びないリールの冒頭改善</p>
+<h4>主目的</h4>
+<p>Profile Visit</p>
+<h4>Hook</h4>
+<p><code>伸びないリール、最初の1秒がほぼ原因です</code></p>
+<h4>台本</h4>
+<p><code>内容が悪いのではなく、冒頭で止まられていないことが多いです。</code> <code>よくある失敗は、説明から入ること。</code> <code>先に悩みを言い切って、その後に解決策を見せた方が止まりやすいです。</code> <code>プロフィールに、使いやすい型をまとめています。</code></p>
+<h4>画面構成</h4>
+<ul><li>1カット目: 悪い例</li><li>2カット目: 良い例</li><li>3カット目: 何が違うかをテロップで表示</li><li>4カット目: CTA</li></ul>
+<h4>キャプション案</h4>
+<p><code>冒頭で説明しすぎると止まりません。</code> <code>まず悩みを言い切るだけで、反応はかなり変わります。</code></p>
+<h3>4. 投稿4</h3>
+<h4>テーマ</h4>
+<p>売れないCTAの改善</p>
+<h4>主目的</h4>
+<p>Lead</p>
+<h4>Hook</h4>
+<p><code>再生されても売れない人はCTAがズレています</code></p>
+<h4>台本</h4>
+<p><code>よくあるのは、投稿内容とCTAの目的が合っていないことです。</code> <code>学び系の投稿なら、まずは無料テンプレ登録。</code> <code>比較系の投稿なら、ツール一覧クリック。</code> <code>相談系の投稿なら、DM。</code> <code>CTAを1つに絞るだけで反応が見やすくなります。</code> <code>無料テンプレはプロフから取れます。</code></p>
+<h4>画面構成</h4>
+<ul><li>1カット目: 間違ったCTA例</li><li>2カット目: 投稿タイプ別CTA表</li><li>3カット目: 1投稿1目的のルール</li><li>4カット目: CTA</li></ul>
+<h4>キャプション案</h4>
+<p><code>再生数の割に動かない投稿は、CTAのズレを疑った方がいいです。</code> <code>1投稿1目的にすると改善しやすくなります。</code></p>
+<h3>5. 投稿5</h3>
+<h4>テーマ</h4>
+<p>ストーリー案出しをAIで回す</p>
+<h4>主目的</h4>
+<p>Lead</p>
+<h4>Hook</h4>
+<p><code>毎日ストーリーが止まる人向けのAI使い方</code></p>
+<h4>台本</h4>
+<p><code>ストーリーは気合で考えるより、型で回した方が続きます。</code> <code>私はAIに、実践ログ、FAQ、比較、アンケートの4種類で毎日案を出させます。</code> <code>その中からその日の投稿に合うものを選ぶだけです。</code> <code>ストーリーテンプレも無料で配っています。</code></p>
+<h4>画面構成</h4>
+<ul><li>1カット目: ストーリーが止まる悩み</li><li>2カット目: 4種類の型</li><li>3カット目: AI出力例</li><li>4カット目: CTA</li></ul>
+<h4>キャプション案</h4>
+<p><code>ストーリーが続かない人ほど、毎日ゼロから考えています。</code> <code>型を決めるだけでかなり楽になります。</code></p>
+      </div>
+    </article>
+    
+    <article class="doc-card" id="docs-instagram-profile-copy-ja-md">
+      <div class="doc-meta">
+        <span class="doc-type">MD</span>
+        <span class="doc-path">docs/instagram-profile-copy-ja.md</span>
+      </div>
+      <div class="doc-body">
+        <h2>Instagramプロフィール文案</h2>
+<p>更新日: 2026-03-11 JST</p>
+<h3>1. 方針</h3>
+<p>このプロフィールは、次のテーマを前提にしています。</p>
+<p><code>AIでInstagram運用を効率化する</code></p>
+<p>狙い:</p>
+<ul><li>何のアカウントかを3秒で理解させる</li><li>無料オファーへ流す</li><li>将来の相談導線にもつなげる</li></ul>
+<h3>2. 名前欄案</h3>
+<p>第一候補:</p>
+<p><code>AIでInstagram運用を効率化</code></p>
+<p>第二候補:</p>
+<p><code>AIでリール運用を仕組み化</code></p>
+<p>第三候補:</p>
+<p><code>AIで投稿作成を最短化</code></p>
+<h3>3. Bio案</h3>
+<h4>案A</h4>
+<p><code>AIで投稿作成と改善を最短化</code> <code>リール台本 / CTA / 分析を仕組み化</code> <code>無料テンプレは下のリンクから</code></p>
+<h4>案B</h4>
+<p><code>Instagram運用をAIで効率化</code> <code>ネタ出し / 台本 / 導線設計を時短</code> <code>無料テンプレ配布中</code></p>
+<h4>案C</h4>
+<p><code>AIでInstagramを回す方法を発信</code> <code>リール設計 / Stories / 売上導線まで</code> <code>まずは無料テンプレから</code></p>
+<h3>4. 固定投稿案</h3>
+<p>固定1:</p>
+<p><code>このアカウントで何がわかるか</code></p>
+<p>固定2:</p>
+<p><code>無料テンプレの受け取り方</code></p>
+<p>固定3:</p>
+<p><code>AIでInstagram運用を回す全体像</code></p>
+<h3>5. ハイライト案</h3>
+<ul><li>はじめての方へ</li><li>テンプレ</li><li>ツール</li><li>実績</li><li>相談</li></ul>
+<h3>6. リンク先構造</h3>
+<p>優先順位:</p>
+<ol><li>無料テンプレ</li><li>ツール比較ページ</li><li>相談導線</li></ol>
+<h3>7. CTA定型文</h3>
+<p>無料オファー:</p>
+<p><code>無料テンプレはプロフのリンクから取れます</code></p>
+<p>アフィリエイト:</p>
+<p><code>使っているツールはプロフにまとめています</code></p>
+<p>相談:</p>
+<p><code>運用を仕組み化したい人はDMで「設計」と送ってください</code></p>
+<h3>8. 避けること</h3>
+<ul><li>何でも屋の説明にする</li><li>改行が多すぎて読みにくくする</li><li>リンク先を複数に分散する</li><li>「伸ばす」だけを訴求して売上導線を隠す</li></ul>
+      </div>
+    </article>
+    
+            </section>
+            
+
+            <section class="content-group">
+              <div class="group-heading">
+                <h2>設計とリサーチ</h2>
+                <p>5 files</p>
+              </div>
+              
+    <article class="doc-card" id="docs-instagram-money-engine-design-ja-md">
+      <div class="doc-meta">
+        <span class="doc-type">MD</span>
+        <span class="doc-path">docs/instagram-money-engine-design-ja.md</span>
+      </div>
+      <div class="doc-body">
+        <h2>Instagram収益化エンジン設計書</h2>
+<p>更新日: 2026-03-11 JST</p>
+<h3>1. この設計書の目的</h3>
+<p>この設計書は、Instagramを「投稿を伸ばす場所」ではなく、<strong>売上を作る導線装置</strong>として設計するための実務メモです。</p>
+<p>前提:</p>
+<ul><li>AI動画を大量に作れること自体には価値がない</li><li>最終ゴールは再生数ではなく売上</li><li>よって、最初から「誰に」「何を」「どう売るか」を先に決める必要がある</li></ul>
+<p>この文書では、以下を決めます。</p>
+<ul><li>どの収益モデルを主軸にするか</li><li>どんなジャンルが収益化しやすいか</li><li>最初の1アカウントはどんな構造にするべきか</li><li>90日で最初の売上を作るには何を検証するべきか</li></ul>
+<h3>2. まず結論</h3>
+<p>最初の1アカウントで狙うべき勝ち筋は、次の順番です。</p>
+<ol><li><code>外部導線で売る</code></li><li><code>アフィリエイトで売る</code></li><li><code>ブランド案件を取る</code></li><li><code>Subscriptions / Gifts / Badgesを積む</code></li></ol>
+<p>最も重要な判断はこれです。</p>
+<p><strong>「Instagram内で稼ぐ」のではなく、「Instagramで需要を作って外で回収する」設計にする。</strong></p>
+<p>この方針が有利な理由:</p>
+<ul><li>収益化機能のロールアウトや国別制限に依存しない</li><li>利益率を自分でコントロールできる</li><li>AI動画でもCTA設計次第で売上につなげやすい</li><li>アカウント停止や機能制限の影響を相対的に下げられる</li></ul>
+<h3>3. 収益モデル比較</h3>
+<div class="table-wrap"><table><thead><tr><th>収益モデル</th><th>立ち上がり速度</th><th>粗利</th><th>再現性</th><th>規約/審査依存</th><th>AI動画との相性</th><th>初期優先度</th></tr></thead><tbody><tr><td>自社商品/デジタル商品</td><td>中</td><td>高</td><td>高</td><td>低</td><td>高</td><td>最優先</td></tr><tr><td>LINE/メルマガ/予約導線</td><td>高</td><td>高</td><td>高</td><td>低</td><td>高</td><td>最優先</td></tr><tr><td>第三者アフィリエイト</td><td>高</td><td>中</td><td>中</td><td>低</td><td>高</td><td>高</td></tr><tr><td>ブランド案件</td><td>低</td><td>高</td><td>中</td><td>中</td><td>中</td><td>中</td></tr><tr><td>Product Tagging / Shop</td><td>中</td><td>高</td><td>中</td><td>高</td><td>中</td><td>中</td></tr><tr><td>Subscriptions</td><td>低</td><td>中</td><td>中</td><td>高</td><td>低〜中</td><td>低</td></tr><tr><td>Gifts / Badges</td><td>低</td><td>低〜中</td><td>低</td><td>高</td><td>低</td><td>低</td></tr></tbody></table></div>
+<h4>解釈</h4>
+<ul><li>最初の売上を作るだけなら、<code>外部導線</code> と <code>アフィリエイト</code> が最も早い</li><li>長期利益を最大化するなら、<code>自社商品</code> か <code>見込み客獲得導線</code> が強い</li><li>Instagram内収益化機能は、補助としては良いが事業の土台には弱い</li></ul>
+<h3>4. どんなジャンルが稼ぎやすいか</h3>
+<p>Instagramで売上につながりやすいジャンルには共通条件があります。</p>
+<h4>必須条件</h4>
+<ul><li>視聴者にすでに購買意欲がある</li><li>短尺動画で価値が伝わる</li><li>ビフォー/アフター、比較、実演、チェックリスト化がしやすい</li><li>継続投稿のネタが切れにくい</li><li>誇大表現や規制違反リスクを管理しやすい</li></ul>
+<h4>強いジャンルの特徴</h4>
+<ul><li>問題が明確</li><li>解決策が具体的</li><li>商品の価格帯が十分にある</li><li>リピート需要がある</li><li>DMやリンククリックにつながりやすい</li></ul>
+<h4>初期候補として強いジャンル</h4>
+<ul><li>AIツール活用</li><li>業務効率化 / 自動化</li><li>SNS運用 / コンテンツ制作</li><li>語学 / 学習法</li><li>キャリア / スキル獲得</li><li>B2B集客</li><li>美容商材の比較/使い方</li></ul>
+<h4>初期候補として危険度が高いジャンル</h4>
+<ul><li>医療</li><li>金融</li><li>稼げる系の断定表現</li><li>誇大な副業系</li><li>サプリや身体変化の強い訴求</li></ul>
+<h3>5. 最初の1アカウントに向いている設計</h3>
+<p>最初の1アカウントは、以下の条件を満たすべきです。</p>
+<ul><li>顔出しが必須ではない</li><li>AI動画と相性が良い</li><li>商品や案件が乗せやすい</li><li>教育型・比較型・ノウハウ型のコンテンツが作れる</li><li>コメントやDMが自然に発生する</li></ul>
+<h4>最有力アカウントタイプ</h4>
+<p><strong>テーマ特化の実用メディア型アカウント</strong></p>
+<p>例:</p>
+<ul><li>AIツールで作業時間を減らすアカウント</li><li>Instagram運用の改善ノウハウアカウント</li><li>営業自動化・台本作成のノウハウアカウント</li><li>クリエイター向け動画制作効率化アカウント</li></ul>
+<p>この型が強い理由:</p>
+<ul><li>AI生成との相性が良い</li><li>アフィリエイトできる商材が多い</li><li>後で自社商品化しやすい</li><li>相談、代行、講座、テンプレ販売に拡張しやすい</li></ul>
+<h3>6. おすすめの収益構造</h3>
+<h4>推奨モデルA</h4>
+<p><code>Reels集客 -&gt; プロフィールリンク -&gt; LINE/メルマガ登録 -&gt; 自社商品 or 相談導線</code></p>
+<p>最も安定する形です。</p>
+<p>向いているもの:</p>
+<ul><li>PDF資料</li><li>テンプレート</li><li>プロンプト集</li><li>業務改善パック</li><li>コンサル</li><li>代行サービス</li></ul>
+<h4>推奨モデルB</h4>
+<p><code>Reels集客 -&gt; プロフィールリンク -&gt; ツール比較ページ -&gt; アフィリエイト</code></p>
+<p>初速が出しやすい形です。</p>
+<p>向いているもの:</p>
+<ul><li>AIツール</li><li>動画編集ツール</li><li>ノーコード自動化ツール</li><li>SaaS全般</li></ul>
+<h4>推奨モデルC</h4>
+<p><code>Reels集客 -&gt; 実績蓄積 -&gt; 案件資料化 -&gt; ブランド案件受注</code></p>
+<p>後半で効いてくる形です。</p>
+<p>向いているもの:</p>
+<ul><li>SaaS</li><li>B2Bサービス</li><li>制作ツール</li><li>教材</li></ul>
+<h3>7. コンテンツから売上までの導線</h3>
+<h4>ファネル全体像</h4>
+<ol><li>Reelsで新規流入を取る</li><li>Storiesで温度感を上げる</li><li>プロフィールで信頼を補強する</li><li>リンク/DMで見込み客化する</li><li>LINE/メルマガ/予約で回収する</li><li>商品販売やアフィリエイトCVにつなげる</li></ol>
+<h4>役割分担</h4>
+<h5>Reels</h5>
+<p>役割:</p>
+<ul><li>リーチ拡大</li><li>問題提起</li><li>比較</li><li>実演</li><li>興味喚起</li></ul>
+<p>向いているCTA:</p>
+<ul><li>続きはプロフィール</li><li>テンプレはプロフ</li><li>詳細はストーリー</li><li>DMでキーワード送信</li></ul>
+<h5>Stories</h5>
+<p>役割:</p>
+<ul><li>日次接触</li><li>商品理解</li><li>よくある質問処理</li><li>限定訴求</li><li>クリック誘導</li></ul>
+<p>向いているCTA:</p>
+<ul><li>リンクスタンプ</li><li>アンケート</li><li>質問箱</li><li>DM誘導</li></ul>
+<h5>Profile</h5>
+<p>役割:</p>
+<ul><li>何者かを3秒で理解させる</li><li>何が得られるか明示する</li><li>リンク先を1つに絞る</li></ul>
+<h4>実務上の重要点</h4>
+<ul><li>Reelsは直接売るより「興味を作る」</li><li>Storiesは「比較・補足・反論処理」</li><li>Link in bioは「1目的1導線」にする</li></ul>
+<h3>8. 最初のオファー設計</h3>
+<p>最初から高額商品を売ろうとすると失敗しやすいです。</p>
+<p>おすすめは3段階です。</p>
+<h4>入口商品</h4>
+<ul><li>無料テンプレ</li><li>無料チェックリスト</li><li>無料PDF</li><li>無料診断</li></ul>
+<p>目的:</p>
+<ul><li>リード獲得</li></ul>
+<h4>中間商品</h4>
+<ul><li>低単価テンプレ集</li><li>ノウハウ資料</li><li>小型講座</li><li>アフィリエイト導線</li></ul>
+<p>目的:</p>
+<ul><li>初回成約</li></ul>
+<h4>本命商品</h4>
+<ul><li>コンサル</li><li>代行</li><li>継続支援</li><li>高単価教材</li></ul>
+<p>目的:</p>
+<ul><li>利益最大化</li></ul>
+<h3>9. 90日ロードマップ</h3>
+<h4>Day 1-14</h4>
+<p>やること:</p>
+<ul><li>ジャンルを1つに絞る</li><li>ターゲットを1人に絞る</li><li>収益導線を1本に絞る</li><li>投稿フォーマットを3種類作る</li><li>プロフィール文とリンク先を整える</li></ul>
+<p>達成条件:</p>
+<ul><li>何を見れば何が得られるかが明確</li><li>CTAが統一されている</li></ul>
+<h4>Day 15-30</h4>
+<p>やること:</p>
+<ul><li>Reelsを毎週5〜7本テスト</li><li><code>Trial Reels</code> が使える場合は、通常投稿前の仮説検証に使う</li><li>Storiesを毎日運用</li><li>CTAを2〜3種類で比較</li><li>プロフィール遷移率を計測</li><li>保存率とシェア率を確認</li></ul>
+<p>達成条件:</p>
+<ul><li>反応のよいフック型が見える</li><li>プロフィール訪問につながる構成が見える</li></ul>
+<h4>Day 31-60</h4>
+<p>やること:</p>
+<ul><li>最も強いテーマに寄せる</li><li>リンク先のCV改善</li><li>DM導線も併用</li><li>アフィリエイトまたは低単価商品を投入</li></ul>
+<p>達成条件:</p>
+<ul><li>初回CVが発生する</li><li>収益/投稿の感覚値が見える</li></ul>
+<h4>Day 61-90</h4>
+<p>やること:</p>
+<ul><li>勝ちフォーマットを量産</li><li>売れた導線だけ残す</li><li>商品単価を上げる</li><li>問い合わせの定型化</li><li>案件資料の材料をためる</li></ul>
+<p>達成条件:</p>
+<ul><li>売上の再現性が出る</li><li>月次の改善指標が作れる</li></ul>
+<h3>10. 最初に追うべきKPI</h3>
+<p>フォロワー数だけを追うと失敗します。</p>
+<h4>集客KPI</h4>
+<ul><li>再生数</li><li>非フォロワー到達率</li><li>3秒維持率</li><li>完視聴率</li><li>保存率</li><li>シェア率</li></ul>
+<h4>興味KPI</h4>
+<ul><li>プロフィール訪問率</li><li>フォロー率</li><li>ストーリー遷移</li><li>DM開始率</li></ul>
+<h4>売上KPI</h4>
+<ul><li>リンククリック率</li><li>LINE/メルマガ登録率</li><li>無料オファー獲得率</li><li>アフィリエイトCVR</li><li>商品成約率</li><li>投稿あたり売上</li><li>1,000再生あたり売上</li></ul>
+<h4>事業KPI</h4>
+<ul><li>見込み客獲得単価</li><li>顧客獲得単価</li><li>LTV</li><li>回収期間</li></ul>
+<h3>11. AI動画運用で絶対に避けるべきこと</h3>
+<ul><li>無差別な量産</li><li>顔のない無機質な量産字幕動画</li><li>何を売るか決めずに伸ばすことだけを狙う</li><li>毎回CTAが違う状態</li><li>リンク先が複数に分散すること</li><li>誇大表現</li><li>PR表記漏れ</li><li>他人コンテンツの焼き直し</li></ul>
+<h3>12. このプロジェクトでの推奨初手</h3>
+<p>現時点での推奨はこれです。</p>
+<ol><li>ジャンルを <code>AIツール活用 / 業務効率化 / SNS運用効率化</code> のどれかに寄せる</li><li>収益導線は <code>アフィリエイト + 無料リード獲得</code> の二段構えにする</li><li>Reelsは教育型・比較型・実演型の3フォーマットに固定する</li><li>StoriesはFAQとオファー補足に使う</li><li>最初の30日は「伸びる投稿」ではなく「プロフィール遷移とクリックが出る投稿」を勝ちと定義する</li></ol>
+<h4>Trial Reelsの扱い</h4>
+<p>Metaは2025年6月のNewsroom記事で、<code>Trial Reels</code> を全員に提供し、まず非フォロワーへ試験的に見せる仕組みとして案内しています。</p>
+<p>この機能が対象アカウントで使えるなら、初期PDCAでかなり有効です。</p>
+<p>使い方:</p>
+<ul><li>新フォーマットの初回検証</li><li>強いフック候補の比較</li><li>弱いテーマの早期切り捨て</li><li>本投稿前のテスト用途</li></ul>
+<p>注意:</p>
+<ul><li>これは売上の本番導線ではなく、あくまで<code>検証コスト削減</code>のための機能として使う</li><li>実際の売上評価は通常投稿、Stories、プロフィール遷移、リンククリックで見る</li></ul>
+<h3>13. 実装前に確定すべきこと</h3>
+<p>次の項目が決まると、実装がかなり具体化できます。</p>
+<ul><li>どのジャンルで始めるか</li><li>何を最初に売るか</li><li>顔出しの有無</li><li>自社商品を売るのか、アフィリエイトから入るのか</li><li>LINE、メルマガ、予約のどれを主導線にするか</li><li>1日何本投稿するか</li></ul>
+<h3>14. 参考にした主な公式ソース</h3>
+<p>https://www.facebook.com/help/instagram/337707278243327/</p>
+<p>https://www.facebook.com/help/instagram/616901995832907/</p>
+<p>https://www.facebook.com/help/instagram/1317960375957564/</p>
+<p>https://www.facebook.com/help/instagram/406451644272016/</p>
+<p>https://www.facebook.com/help/1119990681973107/</p>
+<p>https://www.facebook.com/help/instagram/1119102301790334/</p>
+<p>https://www.facebook.com/help/instagram/802629877249796/</p>
+<p>https://www.facebook.com/help/instagram/2635536099905516/</p>
+<p>https://www.facebook.com/help/instagram/561796329332844/</p>
+<p>https://www.facebook.com/help/338481628002750/</p>
+<p>https://about.fb.com/news/2024/10/best-practices-education-hub-creators-instagram/</p>
+<p>https://about.fb.com/news/2025/06/inspiring-creativity-that-brings-people-together/</p>
+<p>https://www.caa.go.jp/policies/policy/representation/fair_labeling/stealth_marketing</p>
+<ul><li>Meta Help: Creator Marketplace</li><li>Meta Help: Branded content / affiliate disclosure</li><li>Meta Help: Paid partnership labels</li><li>Meta Help: Subscriptions</li><li>Meta Help: Gifts on Reels</li><li>Meta Help: Badges</li><li>Meta Help: Shops / product tags</li><li>Meta Help: Content Monetization Policies</li><li>Meta Help: Monetization status</li><li>Meta Help: Account Status</li><li>Meta Newsroom: Best Practices in professional dashboard</li><li>Meta Newsroom: Trial Reels available to everyone</li><li>消費者庁: ステルスマーケティング規制</li></ul>
+      </div>
+    </article>
+    
+    <article class="doc-card" id="docs-instagram-niche-scorecard-ja-md">
+      <div class="doc-meta">
+        <span class="doc-type">MD</span>
+        <span class="doc-path">docs/instagram-niche-scorecard-ja.md</span>
+      </div>
+      <div class="doc-body">
+        <h2>Instagramジャンル選定スコアカード</h2>
+<p>更新日: 2026-03-11 JST</p>
+<h3>1. 目的</h3>
+<p>この資料は、InstagramでAI動画を回して収益化する前提で、<strong>最初に選ぶべきジャンル</strong>を比較するためのものです。</p>
+<p>ここでのスコアは、公式ルールそのものではなく、以下を組み合わせた<strong>実務上の推定評価</strong>です。</p>
+<ul><li>Meta/Instagramの現行収益化機能とポリシー</li><li>日本での広告表示・ステマ規制への対応しやすさ</li><li>AI動画で継続量産しやすいか</li><li>外部導線やアフィリエイトに接続しやすいか</li><li>後で案件化しやすいか</li></ul>
+<h3>2. 評価軸</h3>
+<p>各項目を5点満点で評価します。</p>
+<ul><li>収益化速度</li><li>粗利の出しやすさ</li><li>アフィリエイト適性</li><li>自社商品化適性</li><li>ブランド案件化適性</li><li>AI動画量産適性</li><li>継続ネタの作りやすさ</li><li>規約/炎上リスクの低さ</li><li>信頼構築のしやすさ</li></ul>
+<h3>3. 候補ジャンル比較</h3>
+<div class="table-wrap"><table><thead><tr><th>ジャンル</th><th>収益化速度</th><th>粗利</th><th>アフィリ適性</th><th>自社商品適性</th><th>案件適性</th><th>AI動画適性</th><th>ネタ継続性</th><th>リスク低さ</th><th>信頼構築</th><th>合計</th></tr></thead><tbody><tr><td>AIツール活用</td><td>5</td><td>4</td><td>5</td><td>5</td><td>4</td><td>5</td><td>5</td><td>4</td><td>4</td><td>41</td></tr><tr><td>業務効率化 / 自動化</td><td>4</td><td>5</td><td>5</td><td>5</td><td>4</td><td>5</td><td>5</td><td>4</td><td>4</td><td>41</td></tr><tr><td>Instagram運用改善</td><td>4</td><td>5</td><td>4</td><td>5</td><td>4</td><td>5</td><td>5</td><td>3</td><td>4</td><td>39</td></tr><tr><td>動画制作効率化</td><td>4</td><td>4</td><td>4</td><td>5</td><td>4</td><td>5</td><td>4</td><td>4</td><td>4</td><td>38</td></tr><tr><td>語学 / 学習法</td><td>3</td><td>4</td><td>3</td><td>5</td><td>3</td><td>4</td><td>5</td><td>4</td><td>5</td><td>36</td></tr><tr><td>B2B営業 / 台本改善</td><td>3</td><td>5</td><td>3</td><td>5</td><td>4</td><td>4</td><td>4</td><td>4</td><td>4</td><td>36</td></tr><tr><td>美容比較 / 使い方</td><td>4</td><td>4</td><td>4</td><td>4</td><td>5</td><td>3</td><td>4</td><td>2</td><td>4</td><td>34</td></tr><tr><td>フィットネス / ダイエット</td><td>3</td><td>4</td><td>4</td><td>4</td><td>4</td><td>3</td><td>4</td><td>1</td><td>4</td><td>31</td></tr><tr><td>お金 / 副業 / 稼ぎ方</td><td>4</td><td>5</td><td>4</td><td>5</td><td>3</td><td>4</td><td>4</td><td>1</td><td>2</td><td>32</td></tr></tbody></table></div>
+<h3>4. 解釈</h3>
+<h4>最上位</h4>
+<h5>AIツール活用</h5>
+<p>強い理由:</p>
+<ul><li>アフィリエイト案件が豊富</li><li>実演型Reelsと非常に相性が良い</li><li>比較、ランキング、導入手順、失敗例などネタが切れにくい</li><li>後でテンプレ、講座、支援商品にしやすい</li></ul>
+<p>弱点:</p>
+<ul><li>情報の陳腐化が早い</li><li>単なる機能紹介だけだと差別化が難しい</li></ul>
+<h5>業務効率化 / 自動化</h5>
+<p>強い理由:</p>
+<ul><li>B2B案件、自社商品、コンサル導線に非常に強い</li><li>視聴者の課題が明確</li><li>「時間削減」「工数削減」「売上向上」など売上に直結する訴求ができる</li></ul>
+<p>弱点:</p>
+<ul><li>初期は少し難しそうに見えやすい</li><li>エンタメ性は弱くなりやすい</li></ul>
+<h4>次点</h4>
+<h5>Instagram運用改善</h5>
+<p>強い理由:</p>
+<ul><li>Instagram内でInstagram改善を売れるので導線が自然</li><li>代行、添削、テンプレ、講座へ展開しやすい</li></ul>
+<p>弱点:</p>
+<ul><li>「再生を伸ばす」「稼げる」表現が過剰になると危険</li><li>同業競争が強い</li></ul>
+<h5>動画制作効率化</h5>
+<p>強い理由:</p>
+<ul><li>AI動画と相性が良い</li><li>編集ツール、音声、テンプレ、制作支援を売りやすい</li></ul>
+<p>弱点:</p>
+<ul><li>視聴者母数は少し狭くなる</li></ul>
+<h3>5. 最初に避けた方がいいジャンル</h3>
+<h4>お金 / 副業 / 稼ぎ方</h4>
+<p>避けたい理由:</p>
+<ul><li>収益性は高いが、規約リスクと信頼毀損リスクが大きい</li><li>誇大表現や実績誤認に寄りやすい</li><li>AI量産アカウントだと特に怪しく見えやすい</li></ul>
+<h4>フィットネス / ダイエット</h4>
+<p>避けたい理由:</p>
+<ul><li>身体変化や健康訴求はセンシティブ</li><li>誇張や断定表現が危険</li><li>コメント欄も荒れやすい</li></ul>
+<h3>6. 最初の1アカウントに最も推奨するジャンル</h3>
+<p>現時点の推奨順位は以下です。</p>
+<ol><li><code>AIツール活用</code></li><li><code>業務効率化 / 自動化</code></li><li><code>Instagram運用改善</code></li></ol>
+<p>最も良いのは、これらを単独で切るのではなく、以下のように<strong>交差点のポジション</strong>を取ることです。</p>
+<h4>推奨ポジションA</h4>
+<p><code>AIツールでInstagram運用を効率化する</code></p>
+<p>売りやすいもの:</p>
+<ul><li>AIツールアフィリエイト</li><li>テンプレ</li><li>台本</li><li>代行</li><li>コンサル</li></ul>
+<h4>推奨ポジションB</h4>
+<p><code>AIと自動化で日々の業務を削減する</code></p>
+<p>売りやすいもの:</p>
+<ul><li>自動化ツール</li><li>SaaSアフィリエイト</li><li>導入支援</li><li>設計資料</li><li>法人相談</li></ul>
+<h4>推奨ポジションC</h4>
+<p><code>ショート動画を速く量産する仕組み</code></p>
+<p>売りやすいもの:</p>
+<ul><li>編集ツール</li><li>生成AI</li><li>テンプレート</li><li>制作支援</li></ul>
+<h3>7. 収益導線の相性表</h3>
+<div class="table-wrap"><table><thead><tr><th>ジャンル</th><th>アフィリエイト</th><th>低単価商品</th><th>高単価商品</th><th>案件</th><th>サブスク</th></tr></thead><tbody><tr><td>AIツール活用</td><td>非常に強い</td><td>強い</td><td>強い</td><td>強い</td><td>中</td></tr><tr><td>業務効率化 / 自動化</td><td>強い</td><td>強い</td><td>非常に強い</td><td>強い</td><td>弱〜中</td></tr><tr><td>Instagram運用改善</td><td>強い</td><td>強い</td><td>強い</td><td>中</td><td>中</td></tr><tr><td>動画制作効率化</td><td>強い</td><td>強い</td><td>中</td><td>強い</td><td>中</td></tr><tr><td>語学 / 学習法</td><td>中</td><td>強い</td><td>強い</td><td>中</td><td>強い</td></tr></tbody></table></div>
+<h3>8. 初期のおすすめ売上モデル</h3>
+<p>最初の90日で最も再現性が高いのは次の組み合わせです。</p>
+<h4>モデル1</h4>
+<p><code>AIツール活用ジャンル + SaaSアフィリエイト + 無料テンプレ配布</code></p>
+<p>理由:</p>
+<ul><li>初速が最も出やすい</li><li>クリックや登録を計測しやすい</li><li>勝ちテーマが見えやすい</li></ul>
+<h4>モデル2</h4>
+<p><code>業務効率化ジャンル + 無料診断 + 導入相談</code></p>
+<p>理由:</p>
+<ul><li>少ない再生でも売上になりやすい</li><li>B2BならLTVが高い</li></ul>
+<h4>モデル3</h4>
+<p><code>Instagram運用改善ジャンル + テンプレ販売 + 代行/添削</code></p>
+<p>理由:</p>
+<ul><li>コンテンツと商品が直結する</li><li>実績化しやすい</li></ul>
+<h3>9. 判断ルール</h3>
+<p>最終的にジャンルを決めるときは、次の順番で判断します。</p>
+<ol><li>売れるものがあるか</li><li>その商品を動画で自然に紹介できるか</li><li>継続的にネタが出るか</li><li>リスクが管理できるか</li><li>AIで量産しても品質を保てるか</li></ol>
+<p>この順番を逆にして、「作りやすいからそのジャンルにする」と失敗しやすいです。</p>
+<h3>10. 現時点の提案</h3>
+<p>今のプロジェクト文脈を踏まえると、最初は次のどれかが最も自然です。</p>
+<ul><li><code>AIでInstagram投稿を効率化するアカウント</code></li><li><code>AIと自動化で業務を減らすアカウント</code></li><li><code>AI動画制作を効率化するアカウント</code></li></ul>
+<p>この3つは、あなたが後で自分の仕組みそのものを商品化しやすいという利点があります。</p>
+<h3>11. 参考ソース</h3>
+<p>この資料のスコアは推定ですが、前提にした公式情報は以下です。</p>
+<p>https://www.facebook.com/help/instagram/616901995832907/</p>
+<p>https://www.facebook.com/help/instagram/1317960375957564/</p>
+<p>https://www.facebook.com/help/instagram/406451644272016/</p>
+<p>https://www.facebook.com/help/1119990681973107/</p>
+<p>https://www.facebook.com/help/instagram/1119102301790334/</p>
+<p>https://www.facebook.com/help/instagram/802629877249796/</p>
+<p>https://www.facebook.com/help/instagram/2635536099905516/</p>
+<p>https://www.facebook.com/help/instagram/653964212890722/</p>
+<p>https://www.caa.go.jp/policies/policy/representation/fair_labeling/stealth_marketing</p>
+<ul><li>Meta Help: Branded content / affiliate disclosure</li><li>Meta Help: Paid partnership labels</li><li>Meta Help: Subscriptions</li><li>Meta Help: Gifts on Reels</li><li>Meta Help: Badges</li><li>Meta Help: Product tags in Reels</li><li>Meta Help: Content Monetization Policies</li><li>Meta Help: Recommendation eligibility</li><li>消費者庁: ステルスマーケティング規制</li></ul>
+      </div>
+    </article>
+    
+    <article class="doc-card" id="docs-instagram-monetization-research-md">
+      <div class="doc-meta">
+        <span class="doc-type">MD</span>
+        <span class="doc-path">docs/instagram-monetization-research.md</span>
+      </div>
+      <div class="doc-body">
+        <h2>Instagram Monetization Research</h2>
+<p>Research date: 2026-03-11 JST</p>
+<h3>1. Executive Summary</h3>
+<p>As of 2026-03-11, Instagram monetization is real, but the highest-probability money path for a new AI video account is not &quot;Instagram pays you directly for views.&quot;</p>
+<p>The practical revenue stack is:</p>
+<ol><li>External conversion revenue</li><li>Third-party affiliate revenue</li><li>Brand deals via creator marketplace / paid partnership</li><li>Product tagging / shop revenue</li><li>Subscriptions</li><li>Gifts / Badges</li><li>Invite-only or unstable platform bonuses</li></ol>
+<p>My main conclusion:</p>
+<ul><li>If the goal is cash flow, build for <code>lead generation / affiliate / owned product sales</code> first.</li><li>Treat <code>Subscriptions</code>, <code>Gifts</code>, and <code>Badges</code> as upside, not as the business model.</li><li>Treat <code>Bonuses</code> and <code>Profile Ads</code> as non-core because current official documentation is sparse or availability-limited.</li><li>For AI video, monetization policy risk is high if the output looks like recycled slideshow content, text montage spam, or low-originality edits.</li></ul>
+<h3>2. What Officially Exists on Instagram Today</h3>
+<h4>A. Branded content and partnership ads</h4>
+<p>This is the most official and durable Instagram-native monetization path for creators.</p>
+<p>What Meta officially says:</p>
+<ul><li>Instagram creator marketplace is available for professional accounts and helps creators connect with brands for branded content and partnership ads.</li><li>All branded content must use the paid partnership label in Feed, Stories, Live, Reels, and videos.</li><li>Partnership ads are available for Instagram professional accounts.</li></ul>
+<p>What this means in practice:</p>
+<ul><li>This is the cleanest path for sponsored content revenue.</li><li>It becomes viable only after the account can prove audience fit, content quality, and safe brand alignment.</li><li>For an AI video account, sponsorship revenue will depend less on follower count alone and more on niche clarity and conversion evidence.</li></ul>
+<h4>B. Affiliate links</h4>
+<p>Officially, affiliate monetization is recognized by Instagram as branded content.</p>
+<p>What Meta officially says:</p>
+<ul><li>If a post contains an affiliate link, it should use the paid partnership label.</li><li>A business partner tag is not required for affiliate-link content.</li></ul>
+<p>Important inference:</p>
+<ul><li>I did not find a current official Instagram Help/Creators setup page for a broad, always-on native Instagram affiliate marketplace or affiliate tool as of 2026-03-11.</li><li>Because official docs clearly discuss affiliate links but not a current native affiliate setup flow, the safe assumption is that affiliate monetization should be designed around <code>third-party affiliate programs + external links + disclosure</code>, not around a native Instagram payout program.</li></ul>
+<h4>C. Subscriptions</h4>
+<p>This is recurring revenue from fans.</p>
+<p>What Meta officially says:</p>
+<ul><li>Professional accounts can enable Subscriptions from the professional dashboard.</li><li>Followers can subscribe at a monthly price selected by the creator.</li><li>Subscription availability is still country- and rollout-dependent.</li><li>Subscribers can buy in almost every country except a limited exclusion list.</li></ul>
+<p>What this means in practice:</p>
+<ul><li>Subscriptions are strong only when the audience already trusts the creator.</li><li>For a new AI video account, this usually comes after a niche and format are proven.</li><li>Subscriptions work best when the public content drives viewers into a deeper paid layer: exclusive posts, behind-the-scenes, templates, niche intel, or community access.</li></ul>
+<h4>D. Gifts on Reels</h4>
+<p>This is fan support tied to Reels.</p>
+<p>What Meta officially says:</p>
+<ul><li>Users can send gifts on Instagram Reels using Stars purchased inside Instagram.</li><li>Gifts may not be available in every location.</li><li>Meta has a creator support pathway for Gifts in the monetization help flow.</li></ul>
+<p>What this means in practice:</p>
+<ul><li>Gifts are supplemental revenue, not a stable core.</li><li>They work better when the creator identity is strong and fans feel personal connection.</li><li>Pure faceless AI content often underperforms here unless the brand voice feels personal and recurring.</li></ul>
+<h4>E. Badges in Live</h4>
+<p>This is fan support during Live.</p>
+<p>What Meta officially says:</p>
+<ul><li>Professional accounts can earn from badges during Live.</li><li>Instagram&#x27;s revenue share is currently 0%; Apple and Google collect in-app fees.</li><li>Creators hosting Lives with badges must be in supported countries; Japan is listed.</li></ul>
+<p>What this means in practice:</p>
+<ul><li>This is usable in Japan.</li><li>It matters only if the account can run compelling Lives.</li><li>For an AI-heavy system, this is viable only if you layer in human presence, live analysis, Q&amp;A, or coaching.</li></ul>
+<h4>F. Product tagging and Shops</h4>
+<p>This is commerce monetization.</p>
+<p>What Meta officially says:</p>
+<ul><li>Businesses and creators with an approved shop can tag products in Reels.</li><li>People can tap product tags to buy, save, or learn more.</li><li>Japan appears in the official supported-country list for the full Shops/Shops ads experience in open beta.</li></ul>
+<p>What this means in practice:</p>
+<ul><li>This is powerful for owned products and approved collaborations.</li><li>It is more operationally demanding than affiliate links because commerce setup and policy approval are required.</li><li>If you have your own product catalog, this is one of the strongest long-term paths.</li></ul>
+<h4>G. Meta Verified</h4>
+<p>This is not a monetization tool.</p>
+<p>What Meta officially says:</p>
+<ul><li>Meta Verified gives verification, support, impersonation protection, and profile enhancements.</li></ul>
+<p>What this means in practice:</p>
+<ul><li>It may help with trust and account support.</li><li>It should be treated as an operations/trust tool, not a revenue stream.</li></ul>
+<h4>H. Bonuses / Profile Ads</h4>
+<p>What Meta officially says:</p>
+<ul><li>The Instagram monetization support flow still references <code>Bonuses</code> and <code>Profile ads</code>.</li></ul>
+<p>Important limitation:</p>
+<ul><li>I did not find a current official public setup page showing that a new Instagram creator can reliably enable these programs on demand as of 2026-03-11.</li><li>Because of that, these should be treated as invite-only, limited, legacy, or unstable until confirmed inside the actual professional dashboard.</li></ul>
+<h3>3. Best Revenue Order for a New AI Video Account</h3>
+<h4>Tier 1: Owned revenue</h4>
+<p>Best options:</p>
+<ul><li>Digital product</li><li>Consulting / booking</li><li>Course / paid workshop</li><li>Newsletter / community</li><li>Lead generation into LINE, email, or booking flow</li></ul>
+<p>Why this wins:</p>
+<ul><li>Margin is highest.</li><li>Platform policy changes hurt less.</li><li>You control pricing, conversion path, and retargeting.</li></ul>
+<p>Best fit:</p>
+<ul><li>Education</li><li>B2B lead gen</li><li>Beauty / fitness / self-improvement with owned offers</li><li>Templates / prompts / systems / guides</li></ul>
+<h4>Tier 2: Third-party affiliate</h4>
+<p>Best options:</p>
+<ul><li>SaaS affiliate</li><li>Education affiliate</li><li>Consumer product affiliate with strong repeat demand</li><li>Creator tools, AI tools, editing tools, productivity tools</li></ul>
+<p>Why this is second:</p>
+<ul><li>Fastest to launch.</li><li>Good for validating content angles before building your own offer.</li><li>Lower control than owned revenue, but far more realistic than waiting for platform payouts.</li></ul>
+<p>Best fit:</p>
+<ul><li>Tutorial-style Reels</li><li>Comparison content</li><li>&quot;3 best tools for X&quot; content</li><li>Problem/solution demos</li></ul>
+<h4>Tier 3: Brand deals</h4>
+<p>Best options:</p>
+<ul><li>Sponsored Reels</li><li>Sponsored Stories</li><li>UGC-style deliverables</li><li>Partnership ads</li></ul>
+<p>Why this is third:</p>
+<ul><li>Revenue can be large, but supply is inconsistent until the account has proof.</li><li>AI-only accounts can struggle unless the creative angle is distinctive and commercially safe.</li></ul>
+<p>Best fit:</p>
+<ul><li>Clear niche authority</li><li>Repeatable format</li><li>Audience that matches advertiser categories</li></ul>
+<h4>Tier 4: Fan monetization</h4>
+<p>Best options:</p>
+<ul><li>Subscriptions</li><li>Gifts</li><li>Badges</li></ul>
+<p>Why this is lower priority:</p>
+<ul><li>These require community depth more than reach.</li><li>A faceless AI account with weak emotional connection usually underperforms here.</li></ul>
+<h3>4. What This Means for AI Video Specifically</h3>
+<p>Instagram monetization policy is a major constraint on AI content strategy.</p>
+<p>Meta&#x27;s content monetization policies explicitly block or reduce monetization for:</p>
+<ul><li>Static videos</li><li>Slideshows of images</li><li>Looping videos</li><li>Text montages</li><li>Embedded ads</li><li>Engagement bait</li><li>Unoriginal content</li><li>Misinformation</li><li>Misleading medical content</li></ul>
+<p>Practical implication:</p>
+<ul><li>Low-effort AI edits that are basically stock images + captions + generic voiceover are structurally weak.</li><li>Even if they get views, they are a fragile foundation for monetization.</li></ul>
+<p>For AI video to monetize well, it needs:</p>
+<ul><li>Strong original angle</li><li>Clear commentary or narrative value</li><li>Distinctive hook</li><li>Human editorial judgment</li><li>Real usefulness or entertainment</li></ul>
+<p>The safest interpretation is:</p>
+<ul><li>AI should accelerate production.</li><li>AI should not replace originality.</li></ul>
+<h3>5. Disclosure and Compliance</h3>
+<h4>Instagram / Meta rules</h4>
+<p>Officially important:</p>
+<ul><li>Branded content requires the paid partnership label.</li><li>Affiliate link posts should use the paid partnership label.</li><li>Recommendation eligibility and monetization can be affected by policy violations.</li><li>You can check monetization status and recommendation eligibility inside Account Status / monetization status tools.</li></ul>
+<h4>Japan legal reality</h4>
+<p>As of 2023-10-01 in Japan, stealth marketing is regulated under the Act against Unjustifiable Premiums and Misleading Representations.</p>
+<p>What this means for strategy:</p>
+<ul><li>If a post is promotional, it needs to be clearly recognizable as advertising.</li><li>Do not rely only on subtle disclosure.</li><li>Use obvious disclosure such as <code>PR</code>, <code>advertisement</code>, or a clearly understandable equivalent for Japanese audiences, in addition to Meta&#x27;s own tools where required.</li></ul>
+<p>This is not legal advice, but operationally the safe standard is:</p>
+<ul><li>platform disclosure</li><li>clear text disclosure</li><li>accurate claims</li><li>no exaggerated earnings or health claims</li></ul>
+<h3>6. The Best Monetization Models for This Project</h3>
+<h4>Model 1: AI media account -&gt; external lead -&gt; owned product</h4>
+<p>Example:</p>
+<ul><li>Reels teach a niche topic</li><li>CTA sends users to profile link</li><li>Link leads to free resource / LINE / email</li><li>Follow-up sells a digital product or service</li></ul>
+<p>This is the strongest starting model.</p>
+<h4>Model 2: AI media account -&gt; affiliate tool recommendation</h4>
+<p>Example:</p>
+<ul><li>Reels compare AI tools or show workflows</li><li>Story and bio direct users to recommended tool stack</li><li>Revenue comes from affiliate commissions</li></ul>
+<p>This is the best early monetization model if you do not yet have your own product.</p>
+<h4>Model 3: AI media account -&gt; proof of audience -&gt; brand deals</h4>
+<p>Example:</p>
+<ul><li>Niche account grows in a measurable category</li><li>Brand-safe analytics and audience data are packaged</li><li>Creator marketplace / direct outreach / agencies convert that proof into deals</li></ul>
+<p>This is a later-stage model.</p>
+<h4>Model 4: AI media account -&gt; membership layer</h4>
+<p>Example:</p>
+<ul><li>Public Reels provide reach</li><li>Subscription offers templates, scripts, trend reports, deeper education, or community</li></ul>
+<p>This is a retention and recurring revenue layer, not the first engine.</p>
+<h3>7. Metrics That Matter for Money</h3>
+<p>If the goal is monetization, follower growth is not enough.</p>
+<p>Track:</p>
+<ul><li>Profile visits per 1,000 views</li><li>Link clicks per 1,000 views</li><li>DM starts per 1,000 views</li><li>Lead capture rate</li><li>Offer conversion rate</li><li>Revenue per 1,000 views</li><li>Revenue per post</li><li>Save rate</li><li>Share rate</li><li>3-second hold rate</li><li>Completion rate</li><li>Recommendation eligibility status</li></ul>
+<p>For brand deals, also track:</p>
+<ul><li>Audience geography</li><li>Audience category fit</li><li>Engagement consistency</li><li>Story completion rate</li><li>Link tap rate</li><li>UGC-style conversion performance</li></ul>
+<h3>8. Best-Niche Characteristics for Monetization</h3>
+<p>The best niches for AI-first Instagram are usually not the broadest niches.</p>
+<p>Best characteristics:</p>
+<ul><li>Purchase intent already exists</li><li>Product recommendation is natural</li><li>Short-form demonstration works</li><li>Repeat content format is possible</li><li>Audience pain is specific</li><li>Compliance risk is manageable</li></ul>
+<p>High-potential categories:</p>
+<ul><li>AI tools / productivity</li><li>Creator growth systems</li><li>Editing / automation / workflow</li><li>Language learning</li><li>Career / skill acquisition</li><li>B2B service lead gen</li><li>Beauty with product-led commerce</li><li>Fitness with program or supplement caution</li></ul>
+<p>Higher-risk categories:</p>
+<ul><li>Medical advice</li><li>Financial advice / investing promises</li><li>Earnings claims / &quot;make money fast&quot;</li><li>Before/after deception</li><li>Highly sexualized content</li><li>Politically inflammatory content</li></ul>
+<h3>9. Recommendation for the First Money Architecture</h3>
+<p>If this project starts from zero, the best monetization architecture is:</p>
+<p>- owned digital product - consultation / booking - affiliate offer</p>
+<ol><li>Pick one niche with clear buying intent</li><li>Build Reels around search-like pain points and emotional hooks</li><li>Monetize first with one of:</li><li>Use Stories to push warm traffic to link or DM</li><li>Use account analytics to find which hooks produce profile visits and clicks</li><li>Only after proof, add brand deals and subscriptions</li></ol>
+<p>My strongest recommendation:</p>
+<ul><li>Do not design the business around &quot;Instagram will pay for views.&quot;</li><li>Design it around &quot;Instagram creates demand and trust, then a controlled revenue system captures value.&quot;</li></ul>
+<h3>10. Operational Rules for the Future Automation System</h3>
+<p>The automation system should enforce the following:</p>
+<p>- lead gen - affiliate - product sale - brand deal proof - subscriber growth</p>
+<ul><li>Every monetized post gets a disclosure check</li><li>Every caption gets a claim-risk check</li><li>Every creative gets an originality check</li><li>Every Reel gets a commerce CTA classification</li><li>Every post gets assigned one revenue objective:</li><li>Every post gets measured for revenue, not just reach</li></ul>
+<h3>11. Open Questions Still Needing Validation in-App</h3>
+<p>These items need to be verified inside the actual professional dashboard of the target account:</p>
+<ul><li>Whether Gifts are enabled for the account</li><li>Whether Subscriptions are enabled for the account</li><li>Whether creator marketplace access is enabled for the account</li><li>Whether product tagging / shop approval is available for the account</li><li>Whether any invite-only bonuses or profile-ad monetization surfaces still appear</li></ul>
+<h3>12. Working Assumptions I Recommend Using</h3>
+<p>Use these assumptions unless in-app verification proves otherwise:</p>
+<ul><li><code>Business</code> account is safer than <code>Creator</code> if Stories automation and commerce are important</li><li><code>External monetization</code> is the primary revenue engine</li><li><code>Affiliate</code> is a valid early monetization layer, but only with clear disclosure</li><li><code>Brand deals</code> are a mid-stage layer</li><li><code>Subscriptions / Gifts / Badges</code> are support layers</li><li><code>AI content must be heavily human-edited to be monetization-safe</code></li></ul>
+<h3>13. Sources</h3>
+<p>Primary official sources:</p>
+<p>https://www.facebook.com/help/instagram/337707278243327/</p>
+<p>https://www.facebook.com/help/instagram/1372533836927082/</p>
+<p>https://www.facebook.com/help/instagram/616901995832907/</p>
+<p>https://www.facebook.com/help/instagram/1317960375957564/</p>
+<p>https://www.facebook.com/help/instagram/406451644272016/</p>
+<p>https://www.facebook.com/help/467290348140020/</p>
+<p>https://www.facebook.com/help/1119990681973107/</p>
+<p>https://www.facebook.com/help/instagram/1119102301790334/</p>
+<p>https://www.facebook.com/help/988404351613676/</p>
+<p>https://www.facebook.com/help/instagram/802629877249796/</p>
+<p>https://www.facebook.com/help/instagram/240433664179432/</p>
+<p>https://www.facebook.com/help/instagram/549256849084694/</p>
+<p>https://www.facebook.com/help/instagram/2635536099905516/</p>
+<p>https://www.facebook.com/help/instagram/561796329332844/</p>
+<p>https://www.facebook.com/help/instagram/653964212890722/</p>
+<p>https://www.facebook.com/help/338481628002750/</p>
+<p>https://www.facebook.com/help/instagram/257516379077270/</p>
+<p>https://www.facebook.com/help/instagram/138925576505882/</p>
+<p>https://www.facebook.com/help/instagram/1221554865098604/</p>
+<p>https://www.facebook.com/help/instagram/732454618598400/</p>
+<p>https://www.facebook.com/help/1206202490291214/</p>
+<p>https://www.facebook.com/business/ads/creator-marketplace</p>
+<p>https://about.fb.com/news/2024/02/creator-marketplace-for-brands-and-creators-to-collaborate-on-instagram/</p>
+<ul><li>Meta Help: About creator marketplace</li><li>Meta Help: Eligibility for partnership ads and branded content</li><li>Meta Help: What is considered branded content</li><li>Meta Help: Paid partnership labels</li><li>Meta Help: Enable Subscriptions on Instagram</li><li>Meta Help: Why am I unable to subscribe to a creator?</li><li>Meta Help: How to send gifts on Instagram Reels</li><li>Meta Help: About badges</li><li>Meta Help: Countries where creators can host Lives with badges</li><li>Meta Help: Tag products in Reels</li><li>Meta Help: About shopping in Reels</li><li>Meta Help: Supported countries for Shops on Facebook and Instagram</li><li>Meta Help: Instagram Content Monetization Policies</li><li>Meta Help: How to check monetization status</li><li>Meta Help: Recommendation eligibility</li><li>Meta Help: Check your Account Status</li><li>Meta Help: Professional dashboard</li><li>Meta Help: Professional accounts</li><li>Meta Help: Business/personal/banking info for payouts</li><li>Meta Help: Subscribe to Meta Verified for creators</li><li>Meta Help: About Meta Verified for creators</li><li>Meta for Business: Creator marketplace / partnership ads overview</li><li>Meta Newsroom: Creator marketplace expansion</li></ul>
+<p>Japan compliance sources:</p>
+<p>https://www.caa.go.jp/policies/policy/representation/fair_labeling/stealth_marketing</p>
+<p>https://www.caa.go.jp/policies/policy/representation/fair_labeling/</p>
+<ul><li>Consumer Affairs Agency of Japan: stealth marketing regulation overview</li><li>Consumer Affairs Agency of Japan: fair labeling law portal</li></ul>
+<h3>14. What I Could Not Fully Verify</h3>
+<p>As of 2026-03-11, I could not find from official public Help/Creators pages:</p>
+<ul><li>a clearly documented, general-availability native Instagram affiliate setup flow</li><li>a clearly documented public setup flow for new creators to enable Bonuses on demand</li><li>a clearly documented public setup flow for new creators to enable Profile Ads on demand</li></ul>
+<p>That is why this research treats those items as non-core until the target account dashboard confirms them.</p>
+      </div>
+    </article>
+    
+    <article class="doc-card" id="docs-instagram-next-step-execution-plan-ja-md">
+      <div class="doc-meta">
+        <span class="doc-type">MD</span>
+        <span class="doc-path">docs/instagram-next-step-execution-plan-ja.md</span>
+      </div>
+      <div class="doc-body">
+        <h2>Instagram次ステップ実行計画</h2>
+<p>更新日: 2026-03-11 JST</p>
+<h3>1. 結論</h3>
+<p>現時点で、<strong>汎用リサーチは十分</strong>です。</p>
+<p>これ以上の一般調査を続けても、戦略の質は少ししか上がりません。むしろ次に重要なのは、以下の3点です。</p>
+<ol><li>最初に攻めるジャンルを確定する</li><li>最初に売るものを確定する</li><li>対象アカウントで実際に使える収益化面を確認する</li></ol>
+<p>つまり、今後のボトルネックは「情報不足」ではなく、<strong>実行前提の意思決定不足</strong>です。</p>
+<h3>2. リサーチが十分と判断する理由</h3>
+<p>すでに以下は押さえています。</p>
+<ul><li>Instagram/Metaの主要な収益化手段</li><li>アフィリエイトとブランド案件の公式開示ルール</li><li>Content Monetization Policies上のAI動画リスク</li><li>日本のステマ規制</li><li>初期に狙うべき収益モデルの優先順位</li><li>最初の1アカウントに向くジャンル候補</li><li>90日で最初の売上を作るための設計</li></ul>
+<p>これで、事業設計として必要な「大枠」は揃っています。</p>
+<h3>3. まだ残っている不確実性</h3>
+<p>ここから先は、公開情報を読んでも解けないものが多いです。</p>
+<h4>アカウント固有の不確実性</h4>
+<ul><li>対象アカウントで <code>Subscriptions</code> が有効か</li><li>対象アカウントで <code>Gifts</code> が有効か</li><li><code>Creator Marketplace</code> が表示されるか</li><li><code>Product tagging / Shop</code> が有効化可能か</li><li><code>Trial Reels</code> が使えるか</li></ul>
+<h4>商材固有の不確実性</h4>
+<ul><li>何を最初に売るか</li><li>自社商品から始めるか、アフィリエイトから始めるか</li><li>どの価格帯が最も売りやすいか</li><li>LINE、メルマガ、DM、予約のどれが主導線か</li></ul>
+<h4>運用固有の不確実性</h4>
+<ul><li>どのフックが最もプロフィール遷移を生むか</li><li>どのCTAが最もクリックを生むか</li><li>どのフォーマットが最も保存/シェアされるか</li></ul>
+<h3>4. 次にやるべきこと</h3>
+<p>次は調査ではなく、<strong>実行可能な仮説を固定するフェーズ</strong>です。</p>
+<p>優先順:</p>
+<ol><li>収益モデルを1つに絞る</li><li>ジャンルを1つに絞る</li><li>初期オファーを1つ作る</li><li>プロフィール導線を1本に絞る</li><li>10〜20本の検証用Reels企画を作る</li></ol>
+<h3>5. 推奨する初期意思決定</h3>
+<p>現時点の推奨は以下です。</p>
+<h4>ジャンル</h4>
+<p><code>AIツール活用</code> もしくは <code>業務効率化 / 自動化</code></p>
+<h4>初期収益モデル</h4>
+<p><code>アフィリエイト + 無料リード獲得</code></p>
+<h4>初期オファー</h4>
+<ul><li>無料テンプレ</li><li>無料チェックリスト</li><li>無料PDF</li><li>無料診断</li></ul>
+<h4>回収導線</h4>
+<p><code>プロフィールリンク -&gt; LINE or メルマガ</code></p>
+<h4>本命の後続商品</h4>
+<ul><li>テンプレ販売</li><li>ノウハウ販売</li><li>導入支援</li><li>コンサル</li></ul>
+<h3>6. Phase 1 実行計画</h3>
+<h4>Step 1: 収益テーマの確定</h4>
+<p>決めること:</p>
+<ul><li>誰向けのアカウントか</li><li>その人の何の悩みを解くか</li><li>何を売るか</li></ul>
+<p>成果物:</p>
+<ul><li>ターゲット定義</li><li>提供価値1文</li><li>売るもの一覧</li></ul>
+<h4>Step 2: 導線の確定</h4>
+<p>決めること:</p>
+<ul><li>プロフ文</li><li>リンク先</li><li>無料オファー</li><li>CTA</li></ul>
+<p>成果物:</p>
+<ul><li>プロフィール草案</li><li>リンク先構造</li><li>CTAテンプレ3種</li></ul>
+<h4>Step 3: コンテンツ仮説の確定</h4>
+<p>決めること:</p>
+<ul><li>どのフォーマットで投稿するか</li><li>どのテーマで検証するか</li><li>何を勝ちとするか</li></ul>
+<p>成果物:</p>
+<ul><li>投稿フォーマット3種</li><li>20本分の企画リスト</li><li>KPI定義</li></ul>
+<h4>Step 4: アカウント機能確認</h4>
+<p>確認すること:</p>
+<ul><li>Professional account種別</li><li>Monetization status</li><li>Account Status</li><li>Gifts / Subscriptions / Marketplace / Shop / Trial Reelsの表示有無</li></ul>
+<p>成果物:</p>
+<ul><li>機能可否一覧</li></ul>
+<h4>Step 5: MVP設計</h4>
+<p>作るもの:</p>
+<ul><li>投稿ネタ管理</li><li>台本生成</li><li>動画生成</li><li>予約投稿</li><li>インサイト回収</li><li>CTA別成績比較</li></ul>
+<p>成果物:</p>
+<ul><li>システム要件</li><li>DB項目</li><li>投稿運用フロー</li></ul>
+<h3>7. 実務での判断基準</h3>
+<p>次の状態になったら、追加の大規模リサーチではなく実装に入るべきです。</p>
+<ul><li>ジャンルが決まっている</li><li>売るものが決まっている</li><li>CTAが決まっている</li><li>プロフィール導線が決まっている</li><li>検証用の投稿テーマが並んでいる</li></ul>
+<p>ここまで決まれば、足りない情報は実験で取った方が速いです。</p>
+<h3>8. 直近で作るべき成果物</h3>
+<p>次に作る価値が高いのは、以下の順です。</p>
+<ol><li>アカウント戦略シート</li><li>初期オファー設計書</li><li>コンテンツ企画20本</li><li>KPIダッシュボード要件</li><li>MVPシステム仕様</li></ol>
+<h3>9. 今の判断</h3>
+<p>今の状態は、<strong>リサーチ継続フェーズではなく、戦略固定フェーズ</strong>です。</p>
+<p>よって、次の作業は以下が適切です。</p>
+<ul><li>最初の1アカウントのテーマ決定</li><li>収益導線の決定</li><li>売るものの設計</li><li>企画量産の設計</li></ul>
+<h3>10. 次に進む提案</h3>
+<p>次はこの順番で進めるのが最も合理的です。</p>
+<ol><li><code>最初の1アカウント戦略書</code> を作る</li><li><code>最初のオファー設計書</code> を作る</li><li><code>最初の20本の投稿企画</code> を作る</li><li>その後でMVP実装設計に入る</li></ol>
+      </div>
+    </article>
+    
+    <article class="doc-card" id="docs-instagram-ai-pdca-blueprint-md">
+      <div class="doc-meta">
+        <span class="doc-type">MD</span>
+        <span class="doc-path">docs/instagram-ai-pdca-blueprint.md</span>
+      </div>
+      <div class="doc-body">
+        <h2>Instagram AI自動運用 設計メモ</h2>
+<h3>1. 結論</h3>
+<p>結論から言うと、<strong>InstagramへのAI動画投稿を自動化し、分析結果を使ってPDCAを継続的に回す仕組みは実装可能</strong>です。</p>
+<p>ただし、完全に自由な自動化ではなく、以下の条件が前提です。</p>
+<ul><li><strong>公式APIだけで組むこと</strong></li><li><strong>InstagramのProfessionalアカウント（Business/Creator）を使うこと</strong></li><li><strong>Stories自動投稿はBusinessアカウント前提で設計すること</strong></li><li><strong>分析データの取得範囲や保存期間に制約があることを受け入れること</strong></li><li><strong>コンテンツ安全性と収益導線には人間の監督ポイントを残すこと</strong></li></ul>
+<p>推定として、24時間稼働の「完全無人AI運用」は技術的には作れますが、実務上は<strong>人間レビュー付きの半自律運用</strong>から始める方が成功確率が高いです。</p>
+<h3>2. 公式制約の要点</h3>
+<h4>投稿自動化</h4>
+<ul><li>Instagram APIは、Professionalアカウント向けに<strong>投稿・コメント管理・分析取得</strong>を提供しています。</li><li>Facebook LoginベースのInstagram APIでは、<strong>Stories以外のContent PublishingはProfessional全体</strong>、<strong>StoriesはBusinessのみ</strong>と案内されています。</li><li>ReelsはAPI経由で公開可能です。Meta公式のPostmanドキュメントには、Reels公開用のコンテナ作成と<code>/media_publish</code>の流れが記載されています。</li></ul>
+<h4>分析</h4>
+<p>- 一部メトリクスは<strong>フォロワー100未満だと使えない場合がある</strong> - ユーザーメトリクスは<strong>最大90日保存</strong> - 取得できるのは<strong>Professionalアカウントが所有するメディア</strong></p>
+<ul><li>Insights APIで、<strong>アカウント単位</strong>と<strong>メディア単位</strong>の指標取得が可能です。</li><li>ただし、公式案内では以下の制約があります。</li></ul>
+<h4>コメント・反応収集</h4>
+<ul><li>コメント取得はAPIクエリでもできますが、Meta公式コレクションでは<strong>レート制限回避のためWebhooks推奨</strong>です。</li></ul>
+<h4>禁止寄りの実装</h4>
+<ul><li>Metaの利用規約では、<strong>事前許可なしの自動データ収集や自動アクセス</strong>を禁じています。</li><li>そのため、<strong>非公式スクレイピング、ブラウザ自動操作、疑似ログインbot</strong>を前提にした設計は避けるべきです。</li></ul>
+<h3>3. 何ができて、何ができないか</h3>
+<h4>できること</h4>
+<ul><li>AIで台本を作る</li><li>AIで画像・動画・音声を生成する</li><li>FFmpegなどでReels/Stories向けに書き出す</li><li>予約キューに流して自動投稿する</li><li>投稿後のメトリクスを定期回収する</li><li>コメント/反応を集約して評価スコア化する</li><li>どのテーマ、構成、尺、CTAが強いかを学習し、次回企画へ反映する</li></ul>
+<h4>できない、または制約が強いこと</h4>
+<p>- 理由: ブランド安全性、広告表記、規約遵守、商材品質の審査が必要</p>
+<ul><li>Personalアカウントを前提にした公式自動投稿</li><li>非公式botで人間操作を偽装する安全運用</li><li>Instagram外のすべての競合データを自由に自動収集すること</li><li>収益化を完全自動で最大化すること</li></ul>
+<h3>4. 推奨アーキテクチャ</h3>
+<pre><code class="language-mermaid">flowchart LR
+    A[&quot;Trend / Insight Input&quot;] --&gt; B[&quot;Strategy Engine&quot;]
+    B --&gt; C[&quot;Script / Hook Generator&quot;]
+    C --&gt; D[&quot;Video Generation Pipeline&quot;]
+    D --&gt; E[&quot;Quality &amp; Policy Check&quot;]
+    E --&gt; F[&quot;Publishing Queue&quot;]
+    F --&gt; G[&quot;Instagram Graph API&quot;]
+    G --&gt; H[&quot;Metrics Collector&quot;]
+    G --&gt; I[&quot;Comments / Webhooks&quot;]
+    H --&gt; J[&quot;Analytics Store&quot;]
+    I --&gt; J
+    J --&gt; K[&quot;Experiment Evaluator&quot;]
+    K --&gt; B
+    J --&gt; L[&quot;Monetization Engine&quot;]</code></pre>
+<h3>5. システム構成案</h3>
+<h4>A. Strategy Engine</h4>
+<p>役割:</p>
+<ul><li>投稿ジャンル決定</li><li>ペルソナ別の企画出し</li><li>フック、タイトル、CTA生成</li><li>仮説管理</li></ul>
+<p>入力:</p>
+<ul><li>過去投稿の成績</li><li>投稿時間帯</li><li>フォロワー増減</li><li>コメント内容</li><li>手動で与えるブランド方針</li></ul>
+<p>出力:</p>
+<ul><li>投稿案</li><li>A/Bテスト案</li><li>期待KPI</li></ul>
+<h4>B. Video Generation Pipeline</h4>
+<p>役割:</p>
+<ul><li>台本生成</li><li>ナレーション生成</li><li>静止画/動画生成</li><li>字幕焼き込み</li><li>Reels/Stories/Feedの3形式へ再構成</li></ul>
+<p>推奨サブ構成:</p>
+<ul><li>LLM: 企画、台本、CTA</li><li>TTS: ナレーション</li><li>画像/動画生成モデル: 素材生成</li><li>FFmpeg: リサイズ、字幕、音量、書き出し</li></ul>
+<h4>C. Quality &amp; Policy Check</h4>
+<p>役割:</p>
+<ul><li>NGワード検査</li><li>誇大表現検査</li><li>商材表記漏れ検査</li><li>アフィリエイト/案件表記の要否判定</li><li>サムネと字幕の読みやすさ検査</li></ul>
+<p>ここは完全自動にせず、最初は<strong>人間承認ステップあり</strong>が安全です。</p>
+<h4>D. Publishing Queue</h4>
+<p>役割:</p>
+<ul><li>投稿タイミング管理</li><li>アカウント別キュー</li><li>失敗時の再試行</li><li>投稿本数の上限制御</li></ul>
+<p>重要:</p>
+<ul><li>Metaの公開資料には24時間単位の公開上限の記載があるため、<strong>内部ルールでさらに低い安全上限</strong>を設ける</li><li>初期は<strong>1アカウントあたり1日3〜6投稿</strong>程度から始める</li></ul>
+<h4>E. Analytics Store / Evaluator</h4>
+<p>役割:</p>
+<ul><li>メディアごとの指標保存</li><li>日次・週次で勝ちパターン抽出</li><li>投稿変数ごとの回帰分析</li><li>次回企画へのフィードバック</li></ul>
+<p>保存したい特徴量:</p>
+<ul><li>ジャンル</li><li>尺</li><li>1秒目のフック文</li><li>CTA種類</li><li>投稿時間</li><li>BGM有無</li><li>顔出し有無</li><li>字幕量</li><li>背景色/テンポ</li></ul>
+<p>評価指標例:</p>
+<ul><li>Reach</li><li>Views</li><li>Watch-through率</li><li>Saves</li><li>Shares</li><li>Profile visits</li><li>Follows per 1,000 views</li><li>CTR相当値</li><li>収益/1,000 views</li></ul>
+<h3>6. 無限PDCAの実装イメージ</h3>
+<h4>Loop 1: 投稿仮説生成</h4>
+<ul><li>直近7日・30日の勝ちパターンを集計</li><li>上位テーマから次の企画を自動生成</li><li>企画ごとにCTAとマネタイズ導線を割り当て</li></ul>
+<h4>Loop 2: 生成と投稿</h4>
+<ul><li>台本生成</li><li>動画生成</li><li>品質チェック</li><li>予約投稿</li></ul>
+<h4>Loop 3: 計測</h4>
+<ul><li>投稿後1時間、24時間、72時間、7日で指標取得</li><li>コメントの感情と購買意図を分類</li></ul>
+<h4>Loop 4: 学習</h4>
+<ul><li>何が伸びたかを特徴量ベースで評価</li><li>次回の生成プロンプトと配信時間へ反映</li></ul>
+<h4>Loop 5: Monetization Optimization</h4>
+<ul><li>CTAごとの成約率を比較</li><li>LP、LINE、DM誘導、アフィリエイト案件別にCVR比較</li><li>高CVR導線を優先採用</li></ul>
+<h3>7. マネタイズ設計</h3>
+<p>収益化はInstagram内だけに閉じない方が強いです。推奨順位は以下です。</p>
+<h4>1. 外部導線型</h4>
+<ul><li>自社商品</li><li>デジタル商品</li><li>相談予約</li><li>LINE登録</li><li>メルマガ登録</li><li>外部LPへの誘導</li></ul>
+<p>最も制御しやすく、収益予測もしやすいです。</p>
+<h4>2. アフィリエイト型</h4>
+<ul><li>リールやストーリーから商材導線を作る</li><li>ただし、Instagram Help Centerでは<strong>アフィリエイトリンクを含む投稿はPaid partnershipラベル対象</strong>と案内されています</li></ul>
+<h4>3. ブランド案件型</h4>
+<ul><li>案件投稿</li><li>Partnership Ads</li><li>Creator Marketplace活用</li></ul>
+<p>単価が大きいので、フォロワー規模が育つほど強いです。</p>
+<h4>4. Instagram内収益化</h4>
+<ul><li>Gifts</li><li>Subscriptions</li></ul>
+<p>これは<strong>地域・年齢・フォロワー数・ポリシー適合性などの条件依存</strong>です。実装前提ではなく、使えれば追加する位置づけが安全です。</p>
+<h3>8. 実装フェーズ案</h3>
+<h4>Phase 0: 事前準備</h4>
+<ul><li>BusinessまたはCreatorアカウント準備</li><li>可能ならBusinessで開始</li><li>Facebook App / Meta App作成</li><li>Professionalアカウント接続</li><li>必要権限の整理</li><li>監査ログと投稿履歴DB設計</li></ul>
+<h4>Phase 1: MVP</h4>
+<p>目標:</p>
+<ul><li>1ジャンル</li><li>1アカウント</li><li>1日3本前後</li><li>人間承認あり</li></ul>
+<p>作るもの:</p>
+<ul><li>コンテンツ生成</li><li>自動予約投稿</li><li>基本メトリクス回収</li><li>ダッシュボード</li></ul>
+<p>成功条件:</p>
+<ul><li>投稿失敗率5%未満</li><li>KPI取得漏れなし</li><li>投稿から分析まで自動連携</li></ul>
+<h4>Phase 2: 半自律PDCA</h4>
+<p>目標:</p>
+<ul><li>投稿成績から次企画を自動提案</li><li>A/Bテスト自動化</li><li>コメント解析導入</li></ul>
+<p>作るもの:</p>
+<ul><li>企画スコアラー</li><li>CTA比較</li><li>時間帯最適化</li><li>Webhooksベースの反応集約</li></ul>
+<h4>Phase 3: 収益化強化</h4>
+<p>目標:</p>
+<ul><li>投稿ごとにマネタイズ導線を持たせる</li><li>コンテンツと収益の相関を追えるようにする</li></ul>
+<p>作るもの:</p>
+<ul><li>LP別の成果測定</li><li>CTAテンプレート群</li><li>アフィリエイト案件別のCVR計測</li><li>ブランド案件テンプレート</li></ul>
+<h4>Phase 4: 多アカウント化</h4>
+<p>目標:</p>
+<ul><li>複数ジャンル</li><li>複数アカウント</li><li>役割別エージェント分離</li></ul>
+<p>作るもの:</p>
+<ul><li>アカウント横断管理</li><li>コンテンツ再利用ルール</li><li>アカウントごとのブランドガードレール</li></ul>
+<h3>9. 推奨技術スタック</h3>
+<p>初期の現実解:</p>
+<ul><li>Backend: Python + FastAPI</li><li>Worker: Celery or RQ + Redis</li><li>DB: PostgreSQL</li><li>File Storage: S3互換ストレージ</li><li>Analytics: Metabase or Superset</li><li>AI Orchestration: Pythonサービス化</li><li>Media: FFmpeg</li><li>Scheduler: cronではなくジョブキュー中心</li></ul>
+<p>理由:</p>
+<ul><li>AI処理、動画処理、分析処理の相性がよい</li><li>24時間運用で再試行やキュー制御をしやすい</li><li>MVPから拡張まで無理が少ない</li></ul>
+<h3>10. 最初の30日でやるべきこと</h3>
+<ol><li>Businessアカウントで始める</li><li>Instagram API接続を通す</li><li>Reels 1本の自動投稿を成功させる</li><li>投稿IDとインサイト取得をDB保存する</li><li>日次レポートを自動生成する</li><li>動画テンプレートを3本作る</li><li>CTAを3種類に絞って比較する</li><li>収益導線を1つに絞る</li></ol>
+<h3>11. 重要リスク</h3>
+<h4>規約リスク</h4>
+<ul><li>非公式自動化は避ける</li><li>投稿頻度を上げすぎない</li><li>アフィリエイトや案件表記を漏らさない</li></ul>
+<h4>品質リスク</h4>
+<ul><li>AI動画を量産しても刺さらない可能性が高い</li><li>量よりもテーマ精度とフック品質が重要</li></ul>
+<h4>データリスク</h4>
+<ul><li>一部インサイトは遅延する</li><li>API仕様変更に備えて抽象化層が必要</li></ul>
+<h4>事業リスク</h4>
+<ul><li>フォロワー増加と売上増加は別問題</li><li>収益化導線を最初から設計しないと再生だけ増えて終わる</li></ul>
+<h3>12. 実装方針の提案</h3>
+<p>最初から「完全無人・全自動・多アカウント」はやらず、以下の順で進めるのがよいです。</p>
+<ol><li>まずは1アカウントでReels中心の自動投稿MVPを作る</li><li>次にInsights取得とコメント収集をつなぐ</li><li>その後でPDCAの自動化を入れる</li><li>最後に収益最適化を入れる</li></ol>
+<p>この順番なら、規約・技術・収益の3つを同時に破綻させにくいです。</p>
+<h3>13. 参考ソース</h3>
+<ul><li>Meta公式Instagram API Workspace: https://www.postman.com/meta/instagram/documentation/6yqw8pt/instagram-api</li><li>Instagram API with Facebook Login: https://www.postman.com/meta/instagram/folder/3uqmcgi/instagram-api-with-facebook-login</li><li>Instagram API with Instagram Login: https://www.postman.com/meta/instagram/folder/6raa77c/instagram-api-with-instagram-login</li><li>Reels Publishing: https://www.postman.com/meta/instagram/folder/zbnz1q0/reels-publishing</li><li>Publish the container (Reels): https://www.postman.com/meta/instagram/request/b25b70f/publish-the-container-reels</li><li>Insights: https://www.postman.com/meta/instagram/folder/w5jo9vk/insights</li><li>Comment webhook: https://www.postman.com/meta/instagram/request/gg841ub/comment-webhook</li><li>Get Comments: https://www.postman.com/meta/instagram/request/l983l25/get-comments</li><li>Meta Terms: https://www.facebook.com/legal/terms</li><li>Automated Data Collection Terms: https://www.facebook.com/apps/site_scraping_tos_terms.php</li><li>Branded content / affiliate link guidance: https://www.facebook.com/help/instagram/616901995832907/</li><li>Paid partnership label guidance: https://www.facebook.com/help/instagram/1317960375957564/</li><li>Partnership ads eligibility: https://www.facebook.com/help/instagram/1372533836927082/</li><li>Creator monetization updates: https://about.fb.com/news/2023/11/giving-creators-more-ways-to-earn-money-on-facebook-and-instagram/amp/</li><li>Gifts on Instagram: https://about.fb.com/news/2023/02/earn-money-on-instagram-with-gifts/</li><li>Creator Marketplace update: https://about.fb.com/news/2024/02/creator-marketplace-for-brands-and-creators-to-collaborate-on-instagram/</li></ul>
+      </div>
+    </article>
+    
+            </section>
+            
+
+            <section class="content-group">
+              <div class="group-heading">
+                <h2>無料オファー7点セット</h2>
+                <p>8 files</p>
+              </div>
+              
+    <article class="doc-card" id="offers-free-template-7set-readme-md">
+      <div class="doc-meta">
+        <span class="doc-type">MD</span>
+        <span class="doc-path">offers/free-template-7set/README.md</span>
+      </div>
+      <div class="doc-body">
+        <h2>AIでInstagram運用を効率化する無料テンプレ7点セット</h2>
+<p>更新日: 2026-03-11 JST</p>
+<h3>内容</h3>
+<ol><li><code>01_reel_script_template.md</code></li><li><code>02_hook_examples.csv</code></li><li><code>03_cta_templates.csv</code></li><li><code>04_story_ideas.csv</code></li><li><code>05_post_calendar.csv</code></li><li><code>06_ai_prompts.md</code></li><li><code>07_improvement_checklist.md</code></li></ol>
+<h3>使い方</h3>
+<ol><li><code>05_post_calendar.csv</code> で7日分のテーマを決める</li><li><code>02_hook_examples.csv</code> から冒頭の型を選ぶ</li><li><code>01_reel_script_template.md</code> に当てはめる</li><li><code>06_ai_prompts.md</code> の指示文で台本を広げる</li><li><code>03_cta_templates.csv</code> から投稿目的に合うCTAを入れる</li><li>投稿前に <code>07_improvement_checklist.md</code> で確認する</li><li>Storiesは <code>04_story_ideas.csv</code> を使って補足する</li></ol>
+<h3>想定読者</h3>
+<ul><li>Instagramを集客に使いたい小規模事業者</li><li>1人で運用している人</li><li>AIを使って投稿作成を時短したい人</li></ul>
+      </div>
+    </article>
+    
+    <article class="doc-card" id="offers-free-template-7set-01-reel-script-template-md">
+      <div class="doc-meta">
+        <span class="doc-type">MD</span>
+        <span class="doc-path">offers/free-template-7set/01_reel_script_template.md</span>
+      </div>
+      <div class="doc-body">
+        <h2>Reel Script Template</h2>
+<h3>目的</h3>
+<ul><li>Reach</li><li>Profile Visit</li><li>Lead</li><li>Affiliate Click</li><li>DM</li></ul>
+<h3>基本構成</h3>
+<h4>1. Hook</h4>
+<ul><li>誰の悩みか</li><li>何が解決するか</li><li>強い一言</li></ul>
+<p>記入例:</p>
+<p><code>投稿ネタが続かない人、まずこれを変えてください</code></p>
+<h4>2. Problem</h4>
+<ul><li>今のやり方の問題</li><li>よくある失敗</li></ul>
+<p>記入欄:</p>
+<ul><li>問題1:</li><li>問題2:</li></ul>
+<h4>3. Solution</h4>
+<ul><li>AIでどう解決するか</li><li>何を入力するか</li><li>どんな出力を使うか</li></ul>
+<p>記入欄:</p>
+<ul><li>使うAI:</li><li>入力内容:</li><li>出力内容:</li></ul>
+<h4>4. Result</h4>
+<ul><li>何が短くなったか</li><li>何が楽になったか</li><li>何が売上につながるか</li></ul>
+<p>記入欄:</p>
+<ul><li>時短:</li><li>効果:</li></ul>
+<h4>5. CTA</h4>
+<ul><li>何をしてほしいかを1つだけ書く</li></ul>
+<p>記入欄:</p>
+<ul><li>CTA:</li></ul>
+<h3>30秒版の流れ</h3>
+<ol><li>Hook 3秒</li><li>Problem 5秒</li><li>Solution 12秒</li><li>Result 5秒</li><li>CTA 5秒</li></ol>
+<h3>字幕メモ</h3>
+<ul><li>1画面1メッセージ</li><li>長文を避ける</li><li>数字か比較を入れる</li></ul>
+      </div>
+    </article>
+    
+    <article class="doc-card" id="offers-free-template-7set-02-hook-examples-csv">
+      <div class="doc-meta">
+        <span class="doc-type">CSV</span>
+        <span class="doc-path">offers/free-template-7set/02_hook_examples.csv</span>
+      </div>
+      <div class="doc-body">
+        <div class="table-wrap"><table><thead><tr><th>category</th><th>hook</th></tr></thead><tbody><tr><td>悩み</td><td>投稿ネタが思いつかない人はこれで終わりです</td></tr><tr><td>悩み</td><td>毎回台本に30分かかる人は見てください</td></tr><tr><td>悩み</td><td>投稿しても売れない人はここがズレています</td></tr><tr><td>比較</td><td>人力で作るよりAIでこう作った方が速いです</td></tr><tr><td>比較</td><td>このやり方とあのやり方で反応がかなり変わります</td></tr><tr><td>改善</td><td>伸びないリールは最初の1秒を直してください</td></tr><tr><td>改善</td><td>プロフィールで損している人の共通点は3つです</td></tr><tr><td>実演</td><td>この作業をAIで5分にした流れを見せます</td></tr><tr><td>実演</td><td>1本の台本から3本の投稿を作る方法です</td></tr><tr><td>導線</td><td>再生だけ増えて売れない人は導線を見直してください</td></tr><tr><td>分析</td><td>感覚で改善すると遠回りです</td></tr><tr><td>時短</td><td>7日分の投稿をまとめて作るテンプレです</td></tr></tbody></table></div>
+      </div>
+    </article>
+    
+    <article class="doc-card" id="offers-free-template-7set-03-cta-templates-csv">
+      <div class="doc-meta">
+        <span class="doc-type">CSV</span>
+        <span class="doc-path">offers/free-template-7set/03_cta_templates.csv</span>
+      </div>
+      <div class="doc-body">
+        <div class="table-wrap"><table><thead><tr><th>goal</th><th>cta</th></tr></thead><tbody><tr><td>Lead</td><td>無料テンプレはプロフのリンクから取れます</td></tr><tr><td>Lead</td><td>続きはプロフの無料テンプレにまとめました</td></tr><tr><td>Affiliate Click</td><td>使っているツールはプロフで比較できます</td></tr><tr><td>Affiliate Click</td><td>使用ツール一覧はプロフに置いています</td></tr><tr><td>Profile Visit</td><td>詳しい流れはプロフィールにまとめています</td></tr><tr><td>Profile Visit</td><td>まずはプロフの固定投稿を見てください</td></tr><tr><td>DM</td><td>自分の運用に落とし込みたい人はDMで設計と送ってください</td></tr><tr><td>DM</td><td>導線を見直したい人はDMで相談と送ってください</td></tr></tbody></table></div>
+      </div>
+    </article>
+    
+    <article class="doc-card" id="offers-free-template-7set-04-story-ideas-csv">
+      <div class="doc-meta">
+        <span class="doc-type">CSV</span>
+        <span class="doc-path">offers/free-template-7set/04_story_ideas.csv</span>
+      </div>
+      <div class="doc-body">
+        <div class="table-wrap"><table><thead><tr><th>day</th><th>type</th><th>idea</th><th>cta</th></tr></thead><tbody><tr><td>1</td><td>実践ログ</td><td>今日の投稿をAIでどう作ったかを3枚で見せる</td><td>無料テンプレへ誘導</td></tr><tr><td>2</td><td>FAQ</td><td>AIで投稿すると不自然にならないかに答える</td><td>質問募集</td></tr><tr><td>3</td><td>比較</td><td>昨日使ったツールのよかった点と弱点を話す</td><td>ツール比較ページへ</td></tr><tr><td>4</td><td>アンケート</td><td>ネタ出しと台本作成のどちらが重いか聞く</td><td>回答を次投稿へ反映</td></tr><tr><td>5</td><td>実演</td><td>1つの台本をリールとストーリーに転用する流れを見せる</td><td>無料テンプレへ</td></tr><tr><td>6</td><td>導線</td><td>なぜ再生よりプロフィール遷移を見るのかを説明する</td><td>DM誘導</td></tr><tr><td>7</td><td>募集</td><td>今困っているInstagram運用の悩みを聞く</td><td>質問箱</td></tr></tbody></table></div>
+      </div>
+    </article>
+    
+    <article class="doc-card" id="offers-free-template-7set-05-post-calendar-csv">
+      <div class="doc-meta">
+        <span class="doc-type">CSV</span>
+        <span class="doc-path">offers/free-template-7set/05_post_calendar.csv</span>
+      </div>
+      <div class="doc-body">
+        <div class="table-wrap"><table><thead><tr><th>day</th><th>theme</th><th>reel_goal</th><th>reel_topic</th><th>story_topic</th><th>cta</th></tr></thead><tbody><tr><td>1</td><td>ネタ出し</td><td>Lead</td><td>投稿ネタをAIで出す方法</td><td>今日のネタ出し手順</td><td>無料テンプレ</td></tr><tr><td>2</td><td>台本</td><td>Affiliate Click</td><td>台本作成AIの実演</td><td>使っているツール比較</td><td>ツール一覧</td></tr><tr><td>3</td><td>フック</td><td>Profile Visit</td><td>伸びない冒頭の直し方</td><td>よい冒頭の例</td><td>固定投稿</td></tr><tr><td>4</td><td>CTA</td><td>Lead</td><td>売れないCTAの改善</td><td>CTA例3つ</td><td>無料テンプレ</td></tr><tr><td>5</td><td>Stories</td><td>Lead</td><td>ストーリーネタをAIで出す</td><td>実際の作り方</td><td>無料テンプレ</td></tr><tr><td>6</td><td>比較</td><td>Affiliate Click</td><td>ツール比較</td><td>向いている人の違い</td><td>ツール一覧</td></tr><tr><td>7</td><td>導線</td><td>DM</td><td>再生だけ増えて売れない理由</td><td>プロフィールとリンクの考え方</td><td>DM相談</td></tr></tbody></table></div>
+      </div>
+    </article>
+    
+    <article class="doc-card" id="offers-free-template-7set-06-ai-prompts-md">
+      <div class="doc-meta">
+        <span class="doc-type">MD</span>
+        <span class="doc-path">offers/free-template-7set/06_ai_prompts.md</span>
+      </div>
+      <div class="doc-body">
+        <h2>AI Prompts</h2>
+<h3>1. 投稿ネタ出し</h3>
+<pre><code class="language-text">Instagramで集客したい小規模事業者向けに、AIでInstagram運用を効率化するテーマのリール企画を20本考えてください。
+各企画に対して、悩み、フック、CTA、狙う反応を1つずつ付けてください。</code></pre>
+<h3>2. 台本作成</h3>
+<pre><code class="language-text">次のテーマを30秒のInstagramリール台本にしてください。
+テーマ:
+ターゲット:
+主目的:
+CTA:
+
+構成は Hook -&gt; Problem -&gt; Solution -&gt; Result -&gt; CTA。
+各パートは短く、字幕にしやすい日本語で書いてください。</code></pre>
+<h3>3. フック改善</h3>
+<pre><code class="language-text">次のリール冒頭を、Instagramで3秒以内に止まりやすい表現に5パターン書き換えてください。
+条件:
+- 誇大表現は禁止
+- 具体性を上げる
+- 1文目だけで悩みが伝わるようにする</code></pre>
+<h3>4. CTA生成</h3>
+<pre><code class="language-text">次の投稿内容に合うCTAを10個作ってください。
+目的は1つだけにしてください。
+選択肢:
+- プロフィール訪問
+- 無料テンプレ登録
+- ツール比較クリック
+- DM相談</code></pre>
+<h3>5. ストーリー化</h3>
+<pre><code class="language-text">次のリール内容を3枚のInstagramストーリーに変換してください。
+1枚目は共感、2枚目は具体例、3枚目はCTAにしてください。</code></pre>
+<h3>6. 改善レビュー</h3>
+<pre><code class="language-text">次の投稿結果を見て、次に変えるべき要素を3つ提案してください。
+データ:
+- 再生数:
+- 保存率:
+- シェア率:
+- プロフィール訪問率:
+- リンククリック率:</code></pre>
+      </div>
+    </article>
+    
+    <article class="doc-card" id="offers-free-template-7set-07-improvement-checklist-md">
+      <div class="doc-meta">
+        <span class="doc-type">MD</span>
+        <span class="doc-path">offers/free-template-7set/07_improvement_checklist.md</span>
+      </div>
+      <div class="doc-body">
+        <h2>Improvement Checklist</h2>
+<h3>投稿前</h3>
+<ul><li>誰向けの投稿かが1秒でわかる</li><li>Hookが短い</li><li>問題提起が明確</li><li>解決策が1つに絞られている</li><li>CTAが1つだけになっている</li><li>誇大表現がない</li><li>広告要素があるなら開示文言を入れている</li><li>プロフ導線が機能している</li></ul>
+<h3>投稿後</h3>
+<ul><li>非フォロワーに届いているか</li><li>プロフィール訪問が出ているか</li><li>保存かシェアのどちらかが出ているか</li><li>CTAに沿った反応が出ているか</li><li>次回に残すべき要素がわかったか</li></ul>
+<h3>見直す優先順</h3>
+<ol><li>Hook</li><li>テーマ</li><li>CTA</li><li>導線</li><li>編集テンポ</li></ol>
+      </div>
+    </article>
+    
+            </section>
+            
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,96 @@
+{
+  "name": "Bankara Latest50 Open Retrieval Benchmark",
+  "defaults": {
+    "media_type": "video",
+    "selection_status": "included",
+    "embedding_kind": "timeline_segment",
+    "semantic_limit": 5,
+    "rerank_feedback": true,
+    "feedback_weight": 0.15,
+    "candidate_k": 15
+  },
+  "cases": [
+    {
+      "id": "open-mother-teacher",
+      "query": "学校の教師として生徒や校長を支配する母のハイテンポなコメディ",
+      "expected_titles": [
+        "もしも最恐の母が教師になったら"
+      ]
+    },
+    {
+      "id": "open-mother-police",
+      "query": "警察組織で強引な捜査と報酬目当てで暴走する母のコメディ",
+      "expected_titles": [
+        "もしも最恐の母が警察官になったら｜アイルトンモカコラボ"
+      ]
+    },
+    {
+      "id": "open-genius-food",
+      "query": "天才小学生が飲食店を高速回転させて常連や職人を支配するコメディ",
+      "expected_titles": [
+        "もしも天才小学生が寿司屋を開いたら｜アイルトンモカコラボ",
+        "もしも天才小学生が焼肉屋を開いたら",
+        "もしも天才小学生がハンバーガー屋を開いたら",
+        "もしも天才小学生がラーメン屋を開いたら | アイルトンモカコラボ"
+      ]
+    },
+    {
+      "id": "open-genius-retail",
+      "query": "天才小学生が小売店の仕組みを利用して客と店員を支配するコメディ",
+      "expected_titles": [
+        "もしも天才小学生がおもちゃ屋を開いたら",
+        "もしも天才小学生がスーパーの店長になったら",
+        "もしも天才小学生がコンビニを開いたら"
+      ]
+    },
+    {
+      "id": "open-genius-athletic",
+      "query": "運動会やマラソン大会でルールの穴を突いて学校全体を支配する天才小学生のコメディ",
+      "expected_titles": [
+        "天才小学生のヤバすぎるマラソン大会",
+        "天才小学生のヤバすぎる運動会"
+      ]
+    },
+    {
+      "id": "open-genius-outing",
+      "query": "遠足や夏休みイベントで引率や友達を振り回す天才小学生のコメディ",
+      "expected_titles": [
+        "天才小学生のヤバすぎる遠足2",
+        "天才小学生のヤバすぎる夏休み3",
+        "天才小学生のヤバすぎる夏休み４"
+      ]
+    },
+    {
+      "id": "open-genius-game-world",
+      "query": "ゲーム世界やサバイバル企画に入り込み、ルールを逆手に取って暴れる天才小学生のコメディ",
+      "expected_titles": [
+        "もしも天才小学生が逃走中に出たら",
+        "もしも天才小学生が逃走中に出たら2 | ニューポテトパーティーコラボ",
+        "もしも天才小学生がバトルロワイヤルに参加したら",
+        "もしも天才小学生がロブロックスにどハマりしたら【Roblox】"
+      ]
+    },
+    {
+      "id": "open-school-hero",
+      "query": "小学生がヒーローとしてチーム化し、正義の名目で大騒ぎするコメディ",
+      "expected_titles": [
+        "小学戦隊バンカレンジャー | もしも小学生がヒーローになったら",
+        "小学戦隊バンカレンジャー２｜もしも小学生がヒーローだったら"
+      ]
+    },
+    {
+      "id": "open-school-detective",
+      "query": "名探偵になった小学生が推理で周囲を振り回すパロディコメディ",
+      "expected_titles": [
+        "【名探偵コナン】もしも小学生が名探偵だったら"
+      ]
+    },
+    {
+      "id": "open-mother-spy",
+      "query": "国家機密を抱えた危険任務で母親が強権的に暴走するコメディ",
+      "expected_titles": [
+        "もしも最恐の母がアメリカのスパイになったら"
+      ]
+    }
+  ]
+}
