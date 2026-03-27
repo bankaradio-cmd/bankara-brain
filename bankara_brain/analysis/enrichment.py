@@ -49,7 +49,7 @@ def build_asset_summary_source_text(
     timeline_segments: list[TimelineSegment],
 ) -> str:
     from bankara_brain.utils import format_seconds_hms
-    from bankara_media_utils import shorten_text
+    from bankara_brain.utils import shorten_text
 
     transcript_parts: list[str] = []
     for segment in transcript_segments[:10]:
@@ -343,8 +343,8 @@ def enrich_visual_audio_summaries(
     Uses ffmpeg for shot detection + frame extraction + audio analysis,
     then calls Gemini with multimodal input to produce structured beat data.
     """
-    from bankara_visual_audio_summary import generate_visual_audio_summary, render_searchable_text
-    from bankara_media_utils import find_sidecar_text_file
+    from bankara_brain.analysis.visual_audio import generate_visual_audio_summary, render_searchable_text
+    from bankara_brain.utils import find_sidecar_text_file
     from bankara_brain.embedding.manifest import BRAIN_VISUAL_AUDIO_SUMMARY_KEY, BRAIN_SEARCHABLE_SUMMARY_V2_KEY
     from bankara_brain.ingest.pipeline import write_jsonl_report_row
 

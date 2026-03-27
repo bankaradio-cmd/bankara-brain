@@ -442,7 +442,7 @@ def build_transcript_window_for_shot(
 
 def parse_cues_from_srt_text(raw: str) -> list[SubtitleCue]:
     """Parse SRT/VTT raw text into SubtitleCue objects."""
-    from bankara_media_utils import parse_subtitle_cues
+    from bankara_brain.utils import parse_subtitle_cues
     raw_cues = parse_subtitle_cues(raw)
     return [
         SubtitleCue(
@@ -827,7 +827,7 @@ def generate_visual_audio_summary(
 
 def _probe_duration(video_path: Path) -> float | None:
     """Probe video duration via ffprobe."""
-    from bankara_media_utils import probe_media_duration
+    from bankara_brain.utils import probe_media_duration
     return probe_media_duration(video_path)
 
 

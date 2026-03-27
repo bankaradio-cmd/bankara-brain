@@ -31,7 +31,7 @@ from bankara_brain.analysis.scoring import FEEDBACK_SCORE_FIELDS, load_latest_fe
 from bankara_brain.analysis.structured_summary import extract_structured_summary_text, render_structured_summary_text
 from bankara_brain.utils import safe_json_load, format_seconds_hms, shorten_text
 
-from bankara_media_utils import build_manifest_record_id, humanize_stem, infer_media_type_and_mime, shorten_text as media_shorten_text
+from bankara_brain.utils import build_manifest_record_id, humanize_stem, infer_media_type_and_mime, shorten_text as media_shorten_text
 
 
 # ---------------------------------------------------------------------------
